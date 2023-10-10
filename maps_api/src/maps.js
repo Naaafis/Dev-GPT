@@ -11,7 +11,7 @@ function Map() {
                 style={{ border: 0 }}
                 loading="lazy"
                 allowFullScreen
-                src="https://www.google.com/maps/embed/v1/place?key=AIzaSyCt75JP2DkIq4NVesfAYmB6HuJQ6zF3vEo&q=Space+Needle,Seattle+WA">
+                src="https://www.google.com/maps/embed/v1/place?key=(keyhere)&q=Space+Needle,Seattle+WA">
             </iframe>
         </div>
     );
