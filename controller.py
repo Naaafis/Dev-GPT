@@ -31,11 +31,19 @@ class Controller:
 
     def execute_command(self, command):
         """Execute a bash command."""
-        process = subprocess.Popen(command.split(), stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-        output, error = process.communicate()
-        if error:
-            return error.decode('utf-8')
-        return output.decode('utf-8')
+        try:
+            process = subprocess.Popen(command.split(), stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+            output, error = process.communicate()
+            if error:
+                return {"status": "error", "message": error.decode('utf-8')}
+            elif output:
+                return {"status": "success", "message": output.decode('utf-8')}
+            else:
+                return {"status": "executed", "message": "Command executed without output."}
+        except FileNotFoundError:
+            return {"status": "error", "message": f"Command '{command}' not found. Please ensure the command/tool is installed."}
+
+
 
     def read_file(self, file_path):
         """Read the contents of a file."""
@@ -96,38 +104,79 @@ class Controller:
         for line_num, new_content in lines_content.items():
             if 0 < line_num <= len(content):
                 content[line_num - 1] = new_content
+            else:
+                # If the line number doesn't exist, extend the content and add new lines
+                content.extend(['\n'] * (line_num - len(content) - 1))
+                content.append(new_content)
         
         with open(file_path, 'w') as file:
             file.write('\n'.join(content))
         return f"Lines rewritten in {file_path}!"
 
 
-def main():
-    controller = Controller()
+# def main():
+#     controller = Controller()
     
-    command = sys.argv[1]
-    if command == "create_directory":
-        print(controller.create_directory(sys.argv[2]))
-    elif command == "change_directory":
-        print(controller.change_directory(sys.argv[2]))
-    elif command == "print_working_directory":
-        print(controller.print_working_directory())
-    elif command == "execute_command":
-        print(controller.execute_command(' '.join(sys.argv[2:])))
-    elif command == "read_file":
-        print(controller.read_file(sys.argv[2]))
-    elif command == "list_directory_contents":
-        print(controller.list_directory_contents(sys.argv[2]))
-    elif command == "write_to_file":
-        print(controller.write_to_file(sys.argv[2], sys.argv[3]))
-    elif command == "insert_into_file":
-        print(controller.insert_into_file(sys.argv[2], sys.argv[3], int(sys.argv[4])))
-    elif command == "delete_lines":
-        print(controller.delete_lines(sys.argv[2], list(map(int, sys.argv[3:]))))
-    elif command == "rewrite_lines":
-        # For simplicity, this command takes line and content as two subsequent arguments.
-        # Example: python controller.py rewrite_lines sample.txt 2 "New content for line 2"
-        print(controller.rewrite_lines(sys.argv[2], {int(sys.argv[3]): sys.argv[4]}))
+#     command = sys.argv[1]
+#     if command == "create_directory":
+#         print(controller.create_directory(sys.argv[2]))
+#     elif command == "change_directory":
+#         print(controller.change_directory(sys.argv[2]))
+#     elif command == "print_working_directory":
+#         print(controller.print_working_directory())
+#     elif command == "execute_command":
+#         print(controller.execute_command(' '.join(sys.argv[2:])))
+#     elif command == "read_file":
+#         print(controller.read_file(sys.argv[2]))
+#     elif command == "list_directory_contents":
+#         print(controller.list_directory_contents(sys.argv[2]))
+#     elif command == "write_to_file":
+#         print(controller.write_to_file(sys.argv[2], sys.argv[3]))
+#     elif command == "insert_into_file":
+#         print(controller.insert_into_file(sys.argv[2], sys.argv[3], int(sys.argv[4])))
+#     elif command == "delete_lines":
+#         print(controller.delete_lines(sys.argv[2], list(map(int, sys.argv[3:]))))
+#     elif command == "rewrite_lines":
+#         # Expecting line numbers and content in pairs
+#         # Example: python controller.py rewrite_lines sample.txt 2 "New content for line 2" 5 "New content for line 5"
+#         lines_content = {int(sys.argv[i]): sys.argv[i + 1] for i in range(3, len(sys.argv), 2)}
+#         print(controller.rewrite_lines(sys.argv[2], lines_content))
 
-if __name__ == "__main__":
-    main()
+# if __name__ == "__main__":
+#     main()
+
+'''
+# To create a directory named "TestDirectory"
+python controller.py create_directory TestDirectory
+
+# To change the current directory to "TestDirectory"
+python controller.py change_directory TestDirectory
+
+# To print the current working directory
+python controller.py print_working_directory
+
+# To execute a command, for example "ls" (listing directory contents)
+python controller.py execute_command ls
+
+# Create a sample file for the next few tests
+echo -e "Line 1\nLine 2\nLine 3\nLine 4\nLine 5" > sample.txt
+
+# To read the contents of "sample.txt"
+python controller.py read_file sample.txt
+
+# To list the contents of the current directory
+python controller.py list_directory_contents .
+
+# To write "Hello, World!" to "sample.txt", overwriting its contents
+python controller.py write_to_file sample.txt "Hello, World!"
+
+# To insert "Inserted Line" at line number 2 in "sample.txt"
+python controller.py insert_into_file sample.txt "Inserted Line" 2
+
+# To delete lines 2 and 4 from "sample.txt"
+python controller.py delete_lines sample.txt 2 4
+
+# To replace the content of lines 2 and 5 in "sample.txt"
+python controller.py rewrite_lines sample.txt 2 "New content for line 2" 5 "New content for line 5"
+
+'''
