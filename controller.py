@@ -2,6 +2,9 @@ import os
 import subprocess
 import sys
 
+'''
+I don't think this function is robust to the line number. It just appends the line too. I've made a test file called test.txt and and the function could fail if the line number being specified to be added to does not exist. How do we make sure we can read the total number of lines and 
+'''
 class Controller:
     def __init__(self):
         pass
@@ -46,8 +49,8 @@ class Controller:
         """List the contents of a directory."""
         return os.listdir(dir_path)
 
-    def write_to_file(self, file_path, content, mode='a'):
-        """Write content to a file. By default, it appends to the file."""
+    def write_to_file(self, file_path, content, mode='w'):
+        """Write content to a file. By default, it overwrites the file."""
         with open(file_path, mode) as file:
             file.write(content)
         return f"Content written to {file_path}!"
@@ -56,12 +59,14 @@ class Controller:
         """Insert content into a specific section of a file."""
         with open(file_path, 'r') as file:
             lines = file.readlines()
-        
-        if line_num is None:
-            lines.append(content)
+
+        if line_num is None or line_num > len(lines):
+            # Append new lines to reach the desired line number
+            lines.extend(['\n'] * (line_num - len(lines) - 1))
+            lines.append(content + '\n')
         else:
-            lines.insert(line_num - 1, content)
-        
+            lines.insert(line_num - 1, content + '\n')
+
         with open(file_path, 'w') as file:
             file.writelines(lines)
         return f"Content inserted into {file_path}!"
@@ -69,31 +74,33 @@ class Controller:
     def delete_lines(self, file_path, lines):
         """Delete specified lines from a file."""
         with open(file_path, 'r') as file:
-            content = file.readlines()
+            content = file.read().split('\n')
         
         if isinstance(lines, int):
             lines = [lines]
         
-        for line_num in sorted(lines, reverse=True):
+        for line_num in lines:
             if 0 < line_num <= len(content):
-                del content[line_num - 1]
+                content[line_num - 1] = ''  # Replace the line with a blank space
         
         with open(file_path, 'w') as file:
-            file.writelines(content)
-        return f"Lines {lines} deleted from {file_path}!"
+            file.write('\n'.join(content))
+        return f"Lines {lines} replaced with blank space in {file_path}!"
+
 
     def rewrite_lines(self, file_path, lines_content):
         """Replace specified lines with provided content."""
         with open(file_path, 'r') as file:
-            content = file.readlines()
+            content = file.read().split('\n')
         
         for line_num, new_content in lines_content.items():
             if 0 < line_num <= len(content):
                 content[line_num - 1] = new_content
         
         with open(file_path, 'w') as file:
-            file.writelines(content)
+            file.write('\n'.join(content))
         return f"Lines rewritten in {file_path}!"
+
 
 def main():
     controller = Controller()
