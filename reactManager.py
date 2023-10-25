@@ -9,10 +9,62 @@ class ReactAppManager:
     def __init__(self, app_name='my_app'):
         self.controller = Controller()
         self.react_app_name = app_name
+        self.root_directory = self.controller.print_working_directory()
 
     def set_react_app_name(self, app_name):
         """Set the React app name."""
         self.react_app_name = app_name
+        
+    # execute any command for the manager
+    def execute_command(self, command):
+        """Allow the user to app Manager to execute any command."""
+        self.controller.execute_command(command)
+        
+    def create_directory(self, dir_name):
+        """Create a directory within the React app directory."""
+        self.controller.create_directory(os.path.join(self.get_react_app_directory(), dir_name))
+    
+    def get_react_app_directory(self):
+        """Get the React app directory."""
+        if self.react_app_name:
+            return os.path.join(self.controller.print_working_directory(), self.react_app_name)
+        else:
+            return "No React app name set. Please create a React app or set its name."
+        
+    def list_react_files(self):
+        """List the files in the React app directory."""
+        if not self.react_app_name:
+            return "No React app name set. Please create a React app or set its name."
+        
+        return self.controller.list_directory_contents(self.get_react_app_directory())
+    
+    def list_react_directory_contents(self):
+        """Recursively list the contents of sub directories in the React app directory."""
+        if not self.react_app_name:
+            return "No React app name set. Please create a React app or set its name."
+        
+        directory_structure = {}
+
+        for root, dirs, files in os.walk(self.get_react_app_directory()):
+            current = directory_structure
+            path_parts = root.replace(self.get_react_app_directory(), '').split(os.sep)
+            for part in path_parts:
+                if not part:
+                    continue
+                if part not in current:
+                    current[part] = {}
+                current = current[part]
+            for f in files:
+                current[f] = None
+
+        return directory_structure
+        
+    def read_react_file(self, filename):
+        """Read a file in the React app directory."""
+        if not self.react_app_name:
+            return "No React app name set. Please create a React app or set its name."
+        
+        return self.controller.read_file(os.path.join(self.get_react_app_directory(), filename))
 
     def get_react_app_name(self):
         """Get the React app name."""
@@ -20,6 +72,10 @@ class ReactAppManager:
             return self.react_app_name
         else:
             return "No React app name set. Please create a React app or set its name."
+
+    '''
+    Below are higher level shell commands that can be used to interact with the hosting OS environment
+    '''
 
     def check_os(self):
         """Check the operating system."""
@@ -65,6 +121,55 @@ class ReactAppManager:
             return f"React app {app_name} created successfully!"
         else:
             return output
+        
+    def npm_start(self):
+        """Start the React app using npm and check if it compiles successfully."""
+        if not self.react_app_name:
+            return "No React app name set. Please create a React app or set its name."
+
+        # Navigate to the React app directory
+        app_directory = os.path.join(self.controller.print_working_directory(), self.react_app_name)
+
+        try:
+            # Start the npm process
+            process = subprocess.Popen(['npm', 'start'], cwd=app_directory, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+
+            # Check the real-time output for the "Compiled successfully!" string
+            for line in iter(process.stdout.readline, ''):
+                print(line)  # print the real-time output (optional)
+                if "Compiled successfully!" in line:
+                    # Optionally stop the server here if you don't need it running
+                    # process.terminate()
+                    return "React app compiled successfully!"
+
+            # If the loop completes without finding the string, there might have been an error
+            return "There might have been an error starting the React app."
+
+        except Exception as e:
+            return f"Error starting React app: {e}"
+        
+    def stop_react_app(self):
+        try:
+            # Get list of processes listening on port 3000
+            result = subprocess.check_output(["lsof", "-i", ":3000"]).decode("utf-8")
+            lines = result.split("\n")[1:]  # Exclude the header line
+
+            for line in lines:
+                print("Line: ", line)
+                if not line:
+                    continue
+                parts = line.split()
+                pid = parts[1]
+                name = parts[-2]
+
+                # Check if 'localhost' is in the name
+                if "localhost" in name:
+                    # Kill the process
+                    os.kill(int(pid), 9)
+                    print(f"Killed process with PID: {pid}")
+
+        except Exception as e:
+            print(f"Error stopping React app: {e}")
         
     def create_new_file(self, filename, content="", directory=None):
         """
@@ -219,7 +324,10 @@ def main():
         content = sys.argv[3] if len(sys.argv) > 3 else ""
         directory = sys.argv[4] if len(sys.argv) > 4 else None
         print(manager.create_new_file(filename, content, directory))
-
+    elif command == "npm_start":
+        print(manager.npm_start())
+    elif command == "stop_react_app":
+        manager.stop_react_app()
 
 if __name__ == "__main__":
     main()
@@ -269,5 +377,10 @@ python reactManager.py edit_app_js "function App() {...}"
 python reactManager.py edit_app_css "body { background-color: red; }"
 
 python reactManager.py create_new_file sample.txt "Hello World"
+
+python reactManager.py npm_start
+
+python reactManager.py stop_react_app
+
 
 '''
