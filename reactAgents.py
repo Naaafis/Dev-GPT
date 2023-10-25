@@ -72,85 +72,91 @@ class ExecutorAgent:
         self.react_manager = react_manager
 
     def execute_task(self, task, **kwargs):
-        if task == "set_react_app_name":
-            return self.react_manager.set_react_app_name(kwargs.get('app_name'))
+        try:
+            if task == "set_react_app_name":
+                return self.react_manager.set_react_app_name(kwargs.get('app_name'))
 
-        elif task == "get_react_app_directory":
-            return self.react_manager.get_react_app_directory()
+            elif task == "get_react_app_directory":
+                return self.react_manager.get_react_app_directory()
 
-        elif task == "get_react_app_name":
-            return self.react_manager.get_react_app_name()
+            elif task == "get_react_app_name":
+                return self.react_manager.get_react_app_name()
 
-        elif task == "get_root_directory":
-            return self.react_manager.get_root_directory()
+            elif task == "get_root_directory":
+                return self.react_manager.get_root_directory()
 
-        elif task == "list_react_files":
-            return self.react_manager.list_react_files()
+            elif task == "list_react_files":
+                return self.react_manager.list_react_files()
 
-        elif task == "list_react_directory_contents":
-            return self.react_manager.list_react_directory_contents()
+            elif task == "list_react_directory_contents":
+                return self.react_manager.list_react_directory_contents()
 
-        elif task == "check_os":
-            return self.react_manager.check_os()
+            elif task == "check_os":
+                return self.react_manager.check_os()
 
-        elif task == "check_node_version":
-            return self.react_manager.check_node_version()
+            elif task == "check_node_version":
+                return self.react_manager.check_node_version()
 
-        elif task == "install_node_based_on_os":
-            return self.react_manager.install_node_based_on_os()
+            elif task == "install_node_based_on_os":
+                return self.react_manager.install_node_based_on_os()
 
-        elif task == "check_for_common_package_installers":
-            return self.react_manager.check_for_common_package_installers()
+            elif task == "check_for_common_package_installers":
+                return self.react_manager.check_for_common_package_installers()
 
-        elif task == "check_react_installed":
-            return self.react_manager.check_react_installed()
+            elif task == "check_react_installed":
+                return self.react_manager.check_react_installed()
 
-        elif task == "install_npm_packages":
-            packages = kwargs.get('packages', [])
-            return self.react_manager.install_npm_packages(packages)
+            elif task == "install_npm_packages":
+                packages = kwargs.get('packages', [])
+                return self.react_manager.install_npm_packages(packages)
 
-        elif task == "create_react_app":
-            app_name = kwargs.get('app_name')
-            return self.react_manager.create_react_app(app_name)
+            elif task == "create_react_app":
+                app_name = kwargs.get('app_name')
+                return self.react_manager.create_react_app(app_name)
 
-        elif task == "npm_start":
-            return self.react_manager.npm_start()
+            elif task == "npm_start":
+                return self.react_manager.npm_start()
 
-        elif task == "stop_react_app":
-            return self.react_manager.stop_react_app()
+            elif task == "stop_react_app":
+                return self.react_manager.stop_react_app()
 
-        elif task == "execute_command":
-            command = kwargs.get('command')
-            return self.react_manager.execute_command(command)
+            elif task == "execute_command":
+                command = kwargs.get('command')
+                return self.react_manager.execute_command(command)
 
-        elif task == "create_directory":
-            dir_name = kwargs.get('dir_name')
-            return self.react_manager.create_directory(dir_name)
+            elif task == "create_directory":
+                dir_name = kwargs.get('dir_name')
+                return self.react_manager.create_directory(dir_name)
 
-        elif task == "read_react_file":
-            filename = kwargs.get('filename')
-            return self.react_manager.read_react_file(filename)
+            elif task == "read_react_file":
+                filename = kwargs.get('filename')
+                return self.react_manager.read_react_file(filename)
 
-        elif task == "create_new_file":
-            filename = kwargs.get('filename')
-            content = kwargs.get('content', "")
-            directory = kwargs.get('directory', None)
-            return self.react_manager.create_new_file(filename, content, directory)
+            elif task == "create_new_file":
+                filename = kwargs.get('filename')
+                content = kwargs.get('content', "")
+                directory = kwargs.get('directory', None)
+                return self.react_manager.create_new_file(filename, content, directory)
 
-        elif task == "edit_file":
-            filename = kwargs.get('filename')
-            content = kwargs.get('content')
-            mode = kwargs.get('mode', 'replace')
-            line_num = kwargs.get('line_num', None)
-            return self.react_manager.edit_file(filename, content, mode, line_num)
+            elif task == "edit_file":
+                filename = kwargs.get('filename')
+                content = kwargs.get('content')
+                mode = kwargs.get('mode', 'replace')
+                line_num = kwargs.get('line_num', None)
+                return self.react_manager.edit_file(filename, content, mode, line_num)
 
-        elif task == "edit_json_file":
-            filename = kwargs.get('filename')
-            content_str = kwargs.get('content_str')
-            return self.react_manager.edit_json_file(filename, content_str)
+            elif task == "edit_json_file":
+                filename = kwargs.get('filename')
+                content_str = kwargs.get('content_str')
+                return self.react_manager.edit_json_file(filename, content_str)
 
-        else:
-            return "Task not recognized."
+            else:
+                return "Task not recognized."
+        
+        except KeyError as e:
+            return f"Required argument missing: {str(e)}"
+        except Exception as e:
+            return f"Error executing task {task}: {str(e)}"
 
 
 class DebuggerAgent:
@@ -212,8 +218,6 @@ class ComponentPlanningAgent:
             elif task == "edit_json_file":
                 filename, content_str = args
                 self.executor.execute_task(task, filename=filename, content_str=content_str)
-            else:
-                self.executor.execute_task(task, **kwargs)
         return "Code processed successfully."
 
 class ComponentMaker:
@@ -226,6 +230,7 @@ class ComponentMaker:
         self.writer = CodeWritingAgent(self.gpt_agent)
         self.executor = ExecutorAgent(self.react_manager)
         self.debugger = DebuggerAgent(self.gpt_agent, self.planner)
+        self.component_planner = ComponentPlanningAgent(self.gpt_agent, self.executor, self.react_manager)
 
         # Initial tasks from TaskCreator
         self.tasks = self.task_creator.initial_tasks()
@@ -238,7 +243,7 @@ class ComponentMaker:
             task = self.tasks.pop(0)
             
             # Conversation with CodeWritingAgent
-            code = self.writer.write_code(task) 
+            code = self.writer.write_code(task) # maybe the tasks arent even to write code anymore
             # the coding agent needs to also be aware of what line numbers to write to
             # additionally, the coding agent also needs to know how to read the file and figure out if code even needs to be written
             # these tasks could be done by another "PlanningAgent" that is aware of the current state of the app
@@ -247,9 +252,10 @@ class ComponentMaker:
             # this planning agent concludes by adding the contents of the coding agents along with the line numbers to the tasks list
             # the executor agent then executes the task and returns the result to the planning agent
                 
-            # Conversation with ExecutorAgent
-            result = self.executor.execute_task(task, code)
+            # Conversation with ComponentPlanningAgent
+            result = self.component_planner.process_code(code)
                 
+            # Check for errors in the result
             if "error" in result.lower():
                 # Conversation with DebuggerAgent
                 new_tasks = self.debugger.debug(result)
