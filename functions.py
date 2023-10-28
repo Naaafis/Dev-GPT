@@ -114,7 +114,7 @@ plan_functions = [
     }
 ]
 
-write_functions = [
+code_functions = [
     {
         "name": "create_directory",
         "description": "Use this to create directories within the React app directory",

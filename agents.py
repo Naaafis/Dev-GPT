@@ -53,7 +53,7 @@ class PlanningRoutine:
             message=user_prompt
         )
 
-    def modularize_step(self, task_num):
+    def expand_step(self, step_num):
         groupchat = ExecutorGroupchat( 
             agents=[self.client, self.planner, self.reviewer, self.executor], messages=[], max_round=5, 
             dedicated_executor = self.client
@@ -62,7 +62,7 @@ class PlanningRoutine:
         manager = GroupChatManager(groupchat=groupchat, llm_config=self.base_config)
         self.client.initiate_chat(
             manager,
-            message=PLAN_ITR_STEP_PROMPT.format(step=task_num)
+            message=PLAN_ITER_STEP_PROMPT.format(step=step_num)
         )
 
 class CodingRoutine:
@@ -73,54 +73,26 @@ class CodingRoutine:
 
         self.client = UserProxyAgent(
             name="client",
-            max_consecutive_auto_reply=5,
+            max_consecutive_auto_reply=3,
             is_termination_msg=self.termination_msg,
             function_map=code_function_map,
             human_input_mode="NEVER",
-            code_execution_config={"work_dir": "API-Galore"},
+            default_auto_reply=CODE_CLIENT_AUTO_REPLY,
+            code_execution_config=False,
         )
 
         self.executor = AssistantAgent(
             name="executor",
             llm_config=self.code_config,
-            system_message="As the team creates and revises code for a file, ask the client to record the code VERBATIM" +
-                "in an appropriately named file in the react directory. You have access to functions for creating, " +
-                "reading and writing to files. You also have functions to understand the file structure of the " +
-                "entire react directory. Use these functions to provide relevant information about the current state " +
-                "of the project and files within it as the engineers need it. "
+            system_message=CODE_EXECUTOR_SYSTEM_MESSAGE
         )
 
-        self.coder1 = AssistantAgent(
-            name="coder1",
+        self.coder = AssistantAgent(
+            name="coder",
             is_termination_msg=self.termination_msg,
             llm_config=self.base_config,
             # the default system message of the AssistantAgent is overwritten here
-            system_message="You are a senior software engineer on the team building a react project. Your job is understand the task and " +
-                "any subtasks given to you and generate code addressing each step. Consider the most effective design choices and "
-                "use react best practices when writing the code. However, prioritize delivering functional code. You will be working " +
-                "in a team with other engineers, code reviewers, and subject matter experts to bring the client's idea to life " +
-                "In summary, your only job is to work collaboratively to translate the natural language write psuedo code into working code. "
-        )
-
-        self.coder2 = AssistantAgent(
-            name="coder2",
-            is_termination_msg=self.termination_msg,
-            llm_config=self.base_config,
-            # the default system message of the AssistantAgent is overwritten here
-            system_message="You are a junior software engineer on the team building a react project. Your job is understand the task and " +
-                "any subtasks given to you and generate code addressing each step. Consider the most effective design choices and "
-                "use react best practices when writing the code. However, prioritize delivering functional code. You will be working " +
-                "in a team with other engineers, code reviewers, and subject matter experts to bring the client's idea to life " +
-                "In summary, your only job is to work collaboratively to translate the natural language write psuedo code into working code. "
-        )
-
-        self.react_sme = AssistantAgent(
-            name="reviewer",
-            is_termination_msg=self.termination_msg,
-            llm_config=self.base_config,
-            # the default system message of the AssistantAgent is overwritten here
-            system_message="You are a reviewer on the planning team. You are tasked with providing feedback to the planner to improve the plan. " +
-                "Ensure that the plan meets the user's requirements and the plan does not contain any code snippets. "
+            system_message=CODE_AGENT_SYSTEM_MESSAGE
         )
 
         self.reviewer = AssistantAgent(
@@ -128,20 +100,19 @@ class CodingRoutine:
             is_termination_msg=self.termination_msg,
             llm_config=self.base_config,
             # the default system message of the AssistantAgent is overwritten here
-            system_message="You are a reviewer on the planning team. You are tasked with providing feedback to the planner to improve the plan. " +
-                "Ensure that the plan meets the user's requirements and the plan does not contain any code snippets. "
+            system_message=CODE_REVIEWER_SYSTEM_MESSAGE
         )
 
-    def iter(self, user_prompt):
+    def init_code(self, step, step_str):
         groupchat = ExecutorGroupchat( 
-            agents=[self.client, self.planner, self.reviewer, self.executor], messages=[], max_round=30, 
+            agents=[self.client, self.coder, self.reviewer, self.executor], messages=[], max_round=20, 
             dedicated_executor = self.client
         )
 
         manager = GroupChatManager(groupchat=groupchat, llm_config=self.base_config)
         self.client.initiate_chat(
             manager,
-            message=user_prompt
+            message=CODE_ITER_STEP_PROMPT.format(step=step, step_str=step_str)
         )
 
 
@@ -183,9 +154,23 @@ class Builder:
 
         self.init_react_manager()
         self.planner = PlanningRoutine(self.base_config, self.plan_config, self.plan_function_map)
+        self.coder = CodingRoutine(self.base_config, self.code_config, self.code_function_map)
 
     def build(self):
-        self.planner.init_plan(self.user_prompt)
+        #self.planner.init_plan(self.user_prompt)
+        plan_items = self.react_manager.get_plan_items()
+        if not plan_items:
+            print("PLAN ROUTINE")
+            self.planner.init_plan(self.user_prompt)
+
+        print("CODE ROUTINE")
+        #for t in range(len(plan_items)):
+        step = plan_items[1]
+        step_str = "\n".join(step)
+        for sub in range(1, len(step)):
+            self.coder.init_code(step[sub], step_str)
+        print("DONE")
+
 
     def init_react_manager(self):
         self.react_manager = ReactAppManager(self.app_name)
@@ -206,7 +191,7 @@ class Builder:
             "temperature": 0,
         }
 
-        self.write_function_map={
+        self.code_function_map={
             "create_directory": self.react_manager.create_directory,
             "read_file": self.react_manager.read_file,
             "create_file": self.react_manager.create_new_file,
@@ -215,8 +200,8 @@ class Builder:
             "delete_lines": self.react_manager.delete_lines,
         }
 
-        self.write_config = {
-            "functions": write_functions,
+        self.code_config = {
+            "functions": code_functions,
             "request_timeout": 600,
             "seed": 42,
             "config_list": self.config_list,

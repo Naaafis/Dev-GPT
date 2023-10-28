@@ -18,6 +18,31 @@ class ReactAppManager:
         
         self.root_directory = self.controller.print_working_directory()
 
+    def setup_react_directory(self):
+        """Configures React app directory"""
+        if not self.check_node_version():
+            print("Please install node")
+            return
+
+        if not self.check_react_version():
+            print("Please install npx")
+            return
+
+        """Create a new React app."""
+        cmd = f"npx create-react-app {self.app_name}"
+        output = self.controller.execute_command(cmd)
+
+        """Enforced file structure"""
+        src_dir = os.path.join(self.get_react_app_directory, "/src")
+        self.create_directory(self, src_dir, "/assets")
+        self.create_directory(self, src_dir, "/components")
+        self.create_directory(self, src_dir, "/hooks")
+        self.create_directory(self, src_dir, "/context")
+        self.create_directory(self, src_dir, "/data")
+        self.create_directory(self, src_dir, "/pages")
+        self.create_directory(self, src_dir, "/util")
+
+
     '''
     The set of functions below is used by the PlanningAgent to get a sense of its surrounding environment.
     '''
@@ -71,6 +96,49 @@ class ReactAppManager:
                 current[f] = None
 
         return directory_structure
+
+    def pretty_print_react_directory_contents(self, directory=None, indent=0):
+        """
+        Pretty prints a nested dictionary representing a directory structure.
+        """
+        if not directory:
+            directory = self.list_react_directory_contents()
+        output = ""
+        for key, value in directory.items():
+            output += ' ' * indent + key + "\n"
+            if isinstance(value, dict):
+                output += self.pretty_print_react_directory_contents(value, indent + 4)
+        return output
+
+    def get_plan_items(self):
+        file_path = os.path.join(self.get_react_app_directory(), 'plan.txt')
+        steps = []  # Initialize an empty list to store grouped steps
+        current_group = []  # Initialize the current group of items as an empty list
+        print(file_path)
+        try:
+            with open(file_path, 'r') as file:
+                for line in file:
+                    line = line.strip()
+                    if line:
+                        # Check if the line starts with a numerical step (e.g., "1. ", "2. ", etc.)
+                        if line[0].isdigit() and line[1] == '.':
+                            # If a new numerical step is encountered, add the current group to the list
+                            if current_group:
+                                steps.append(current_group)
+                            current_group = []  # Initialize a new group for this step
+                        # Add the line to the current group of items
+                        current_group.append(line)
+
+                # Append the last group of items to the list
+                if current_group:
+                    steps.append(current_group)
+        except FileNotFoundError:
+            print(f"File '{file_path}' not found.")
+        except Exception as e:
+            print(f"An error occurred: {str(e)}")
+
+        return steps
+
     
     ####################################################################################################################
         
@@ -92,7 +160,8 @@ class ReactAppManager:
     def check_node_version(self):
         """Check the installed node version."""
         cmd = "node -v"
-        return self.controller.execute_command(cmd)['message']
+        version = self.controller.execute_command(cmd)['message']
+        return "success" in version.lower()
 
     def install_node_based_on_os(self):
         """Install Node.js based on the OS."""
@@ -113,7 +182,8 @@ class ReactAppManager:
     def check_react_installed(self):
         """Check if React is installed."""
         cmd = "npx -v"
-        return self.controller.execute_command(cmd)['message']
+        version = self.controller.execute_command(cmd)['message']
+        return "success" in version.lower()
 
     def install_npm_packages(self, packages):
         """Install npm packages."""
@@ -391,8 +461,12 @@ class ReactAppManager:
 #     elif command == "stop_react_app":
 #         manager.stop_react_app()
 
-# if __name__ == "__main__":
-#     main()
+def main():
+    manager = ReactAppManager()
+    print(manager.get_plan_items())
+
+if __name__ == "__main__":
+    main()
 
 
 '''
