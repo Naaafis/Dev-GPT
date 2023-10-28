@@ -23,8 +23,8 @@ class PlanningRoutine:
             name="executor",
             llm_config=self.plan_config,
             system_message="As the planner creates and revises the plan, ask the client to record the plan VERBATIM" +
-                "in a file called plan.txt at the highest level directory project. The content should be text from the " +
-                "planner and not code. The file_name should be plan.txt."
+                "in a file called plan.txt at the highest level directory project. Include every minor and major step of the plan in  " +
+                " a seperate line, indenting nested steps accordingly."
         )
 
         self.planner = AssistantAgent(
@@ -139,7 +139,7 @@ class Builder:
         }
 
 def main():
-    builder = Builder("YOUR_API_KEY", "my_app", "Create a user profile component.")
+    builder = Builder("YOUR_API_KEY", "my_app", "Recreate google maps with just the api.")
     builder.build()
 
 if __name__ == "__main__":
