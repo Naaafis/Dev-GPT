@@ -190,7 +190,7 @@ class ReactAppManager:
         """Allow the user to app Manager to execute any command."""
         self.controller.execute_command(command)
         
-    def create_directory(self, dir_path="", dir_name):
+    def create_directory(self, dir_path, dir_name):
         """Create a directory within the React app directory."""
         self.controller.create_directory(os.path.join(self.get_react_app_directory(), dir_path, dir_path))
     
@@ -203,7 +203,7 @@ class ReactAppManager:
         return self.controller.read_file(os.path.join(self.get_react_app_directory(), file_path, file_name))
 
 
-    def create_new_file(self, file_path="", file_name, content):
+    def create_new_file(self, file_path, file_name, content):
         """
         Create a new file within the React app directory.
         
@@ -224,7 +224,7 @@ class ReactAppManager:
 
         return self.controller.write_to_file(file_path, content)
 
-    def write_to_file(self, file_path="", file_name, content):
+    def write_to_file(self, file_path, file_name, content):
         """Write to a specified file in the React app directory."""
         if not self.react_app_name:
             return "No React app name set. Please create a React app or set its name."
@@ -237,7 +237,7 @@ class ReactAppManager:
 
         return self.controller.write_to_file(path, content)
 
-    def insert_into_file(self, file_path="", file_name, content, line_num):
+    def insert_into_file(self, file_path, file_name, content, line_num):
         """Insert content at a specified line in a specified file in the React app directory."""
         if not self.react_app_name:
             return "No React app name set. Please create a React app or set its name."
@@ -249,7 +249,7 @@ class ReactAppManager:
 
         return self.controller.insert_into_file(path, content, line_num)
 
-    def delete_lines(self, file_path="", file_name, line_nums):
+    def delete_lines(self, file_path, file_name, line_nums):
         """Delete lines from a specified file in the React app directory."""
         if not self.react_app_name:
             return "No React app name set. Please create a React app or set its name."
@@ -261,7 +261,7 @@ class ReactAppManager:
 
         return self.controller.delete_lines(path, line_nums)
 
-    def rewrite_lines(self, file_path="", file_name, content):
+    def rewrite_lines(self, file_path, file_name, content):
         """Rewrite specified lines to a specified file in the React app directory."""
         if not self.react_app_name:
             return "No React app name set. Please create a React app or set its name."
