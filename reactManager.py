@@ -29,7 +29,7 @@ class ReactAppManager:
     def get_react_app_directory(self):
         """Get the React app directory."""
         if self.react_app_name:
-            return os.path.join(self.controller.print_working_directory(), self.react_app_name)
+            return os.path.join(self.root_directory, self.react_app_name)
         else:
             return "No React app name set. Please create a React app or set its name."
         
@@ -190,24 +190,24 @@ class ReactAppManager:
         """Allow the user to app Manager to execute any command."""
         self.controller.execute_command(command)
         
-    def create_directory(self, dir_name):
+    def create_directory(self, dir_path="", dir_name):
         """Create a directory within the React app directory."""
-        self.controller.create_directory(os.path.join(self.get_react_app_directory(), dir_name))
+        self.controller.create_directory(os.path.join(self.get_react_app_directory(), dir_path, dir_path))
     
         
-    def read_react_file(self, filename):
+    def read_file(self, file_path, file_name):
         """Read a file in the React app directory."""
         if not self.react_app_name:
             return "No React app name set. Please create a React app or set its name."
         
-        return self.controller.read_file(os.path.join(self.get_react_app_directory(), filename))
+        return self.controller.read_file(os.path.join(self.get_react_app_directory(), file_path, file_name))
 
-        
-    def create_new_file(self, filename, content="", directory=None):
+
+    def create_new_file(self, file_path="", file_name, content):
         """
         Create a new file within the React app directory.
         
-        :param filename: Name of the file to be created.
+        :param file_name: Name of the file to be created.
         :param content: Content to be written to the new file.
         :param directory: Directory within the React app directory where the file should be created.
         :return: Success or error message.
@@ -216,35 +216,65 @@ class ReactAppManager:
             return "No React app name set. Please create a React app or set its name."
 
         # If directory is provided, check if it exists or create it.
-        if directory:
-            dir_path = os.path.join(self.controller.print_working_directory(), self.react_app_name, directory)
-            if not os.path.exists(dir_path):
-                os.makedirs(dir_path)
-        else:
-            dir_path = os.path.join(self.controller.print_working_directory(), self.react_app_name)
+        path = os.path.join(self.get_react_app_directory(), file_path)
+        if not os.path.exists(path):
+            os.makedirs(path)
 
-        file_path = os.path.join(dir_path, filename)
+        file_path = os.path.join(path, file_name)
 
         return self.controller.write_to_file(file_path, content)
 
-    def edit_file(self, filename, content, mode='replace', line_num=None):
-        """Edit specified file in the React app directory."""
+    def write_to_file(self, file_path="", file_name, content):
+        """Write to a specified file in the React app directory."""
         if not self.react_app_name:
             return "No React app name set. Please create a React app or set its name."
 
-        file_path = os.path.join(self.controller.print_working_directory(), self.react_app_name, filename)
+        # Check if file exists.
+        path = os.path.join(self.get_react_app_directory(), file_path, file_name)
+        if not os.path.exists(path):
+            return "Invalid path: " + path
 
-        if mode == 'replace':
-            return self.controller.write_to_file(file_path, content)
-        elif mode == 'insert':
-            return self.controller.insert_into_file(file_path, content, line_num)
-        elif mode == 'delete':
-            return self.controller.delete_lines(file_path, [line_num])
-        elif mode == 'rewrite':
-            if isinstance(line_num, dict):
-                return self.controller.rewrite_lines(file_path, line_num)
-            else:
-                return self.controller.rewrite_lines(file_path, {line_num: content})
+
+        return self.controller.write_to_file(path, content)
+
+    def insert_into_file(self, file_path="", file_name, content, line_num):
+        """Insert content at a specified line in a specified file in the React app directory."""
+        if not self.react_app_name:
+            return "No React app name set. Please create a React app or set its name."
+
+        # Check if file exists.
+        path = os.path.join(self.get_react_app_directory(), file_path, file_name)
+        if not os.path.exists(path):
+            return "Invalid path: " + path
+
+        return self.controller.insert_into_file(path, content, line_num)
+
+    def delete_lines(self, file_path="", file_name, line_nums):
+        """Delete lines from a specified file in the React app directory."""
+        if not self.react_app_name:
+            return "No React app name set. Please create a React app or set its name."
+
+        # Check if file exists.
+        path = os.path.join(self.get_react_app_directory(), file_path, file_name)
+        if not os.path.exists(path):
+            return "Invalid path: " + path
+
+        return self.controller.delete_lines(path, line_nums)
+
+    def rewrite_lines(self, file_path="", file_name, content):
+        """Rewrite specified lines to a specified file in the React app directory."""
+        if not self.react_app_name:
+            return "No React app name set. Please create a React app or set its name."
+
+        # Check if file exists.
+        path = os.path.join(self.get_react_app_directory(), file_path, file_name)
+        if not os.path.exists(path):
+            return "Invalid path: " + path
+
+        if isinstance(content, dict):
+            return self.controller.rewrite_lines(path, content)
+        else:
+            return "Content is not a dictionary in the format {line_number(int): content(string)}"
 
     # The remaining functions will use the default 'replace' mode for editing
     def edit_json_file(self, filename, content_str):

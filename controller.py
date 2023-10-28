@@ -63,12 +63,12 @@ class Controller:
             file.write(content)
         return f"Content written to {file_path}!"
 
-    def insert_into_file(self, file_path, content, line_num=None):
+    def insert_into_file(self, file_path, content, line_num):
         """Insert content into a specific section of a file."""
         with open(file_path, 'r') as file:
             lines = file.readlines()
 
-        if line_num is None or line_num > len(lines):
+        if line_num > len(lines):
             # Append new lines to reach the desired line number
             lines.extend(['\n'] * (line_num - len(lines) - 1))
             lines.append(content + '\n')
