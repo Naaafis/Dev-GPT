@@ -116,25 +116,6 @@ plan_functions = [
 
 code_functions = [
     {
-        "name": "create_directory",
-        "description": "Use this to create directories within the React app directory",
-        "parameters": {
-            "type": "object",
-            "properties": {
-                "dir_path": {
-                    "type": "string",
-                    "description": "An existing path within the react directory. The new directory will be created at this path within the react directory. " +
-                    "Leave as empty string if the directory should be created just inside the react directory. ",
-                },
-                "dir_name": {
-                    "type": "string",
-                    "description": "The name of the new directory to be created",
-                }
-            },
-            "required": ["dir_path", "dir_name"]
-        },
-    },
-    {
         "name": "read_file",
         "description": "Read a file in the React app directory. Use this to determine a file's current contents before making changes.",
         "parameters": {
@@ -254,6 +235,47 @@ code_functions = [
     }
 ]
 
+sme_functions = [
+    {
+        "name": "ask_react_expert",
+        "description": "Use this to get improvements to code from a react subject matter expert.",
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "code_block": {
+                    "type": "string",
+                    "description": """This is the chuck of code that requires expert opinion. 
+                    It should be in the following format
+                    ```language
+                    # your code
+                    ```
+                    """,
+                }
+            },
+            "required": ["code_block"]
+        },
+    }
+]
+
+# {
+#         "name": "create_directory",
+#         "description": "Use this to create directories within the React app directory",
+#         "parameters": {
+#             "type": "object",
+#             "properties": {
+#                 "dir_path": {
+#                     "type": "string",
+#                     "description": "An existing path within the react directory. The new directory will be created at this path within the react directory. " +
+#                     "Leave as empty string if the directory should be created just inside the react directory. ",
+#                 },
+#                 "dir_name": {
+#                     "type": "string",
+#                     "description": "The name of the new directory to be created",
+#                 }
+#             },
+#             "required": ["dir_path", "dir_name"]
+#         },
+#     },
 # {
 #         "name": "get_react_app_directory",
 #         "description": "Get the React app directory. This is where the entire web app is stored",

@@ -302,7 +302,7 @@ class ReactAppManager:
         # Check if file exists.
         path = os.path.join(self.get_react_app_directory(), file_path, file_name)
         if not os.path.exists(path):
-            return "Invalid path: " + path
+            return self.create_new_file(self, file_path, file_name, content)
 
 
         return self.controller.write_to_file(path, content)
