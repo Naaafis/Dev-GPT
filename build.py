@@ -22,22 +22,24 @@ class Builder:
 
         self.init_react_manager()
         self.planner = PlanRoutine(self.base_config, self.plan_config, self.plan_function_map)
+        self.installer = InstallRoutine(self.base_config, self.install_config, self.install_function_map)
         self.coder = CodeRoutine(self.base_config, self.code_config, self.code_function_map, self.sme_config)
 
     def build(self):
         #self.planner.init_plan(self.user_prompt)
-        plan_items = self.react_manager.get_plan_items()
-        if not plan_items:
-            print("PLAN ROUTINE")
-            self.planner.init_plan(self.user_prompt)
+        self.installer.find_dependencies(self.react_manager.read_file("", "plan.txt"))
+        # plan_items = self.react_manager.get_plan_items()
+        # if not plan_items:
+        #     print("PLAN ROUTINE")
+        #     self.planner.init_plan(self.user_prompt)
 
-        print("CODE ROUTINE")
-        #for t in range(len(plan_items)):
-        step = plan_items[1]
-        step_str = "\n".join(step)
-        for sub in range(1, len(step)):
-            self.coder.init_code(step[sub], step_str)
-        print("DONE")
+        # print("CODE ROUTINE")
+        # #for t in range(len(plan_items)):
+        # step = plan_items[1]
+        # step_str = "\n".join(step)
+        # for sub in range(1, len(step)):
+        #     self.coder.init_code(step[sub], step_str)
+        # print("DONE")
 
 
     def init_react_manager(self):
@@ -84,9 +86,21 @@ class Builder:
             "temperature": 0,
         }
 
+        self.install_function_map={
+            "create_dependency_list": self.react_manager.create_new_file
+        }
+
+        self.install_config = {
+            "functions": install_functions,
+            "request_timeout": 600,
+            "seed": 42,
+            "config_list": self.config_list,
+            "temperature": 0,
+        }
+
 
 def main():
-    builder = Builder("YOUR_API_KEY", "my_app", "Recreate google maps with just the api.")
+    builder = Builder("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", "my_app", "Recreate google maps with just the api.")
     builder.build()
 
 if __name__ == "__main__":

@@ -25,6 +25,23 @@ Reflect on the current plan and determine if any step can be expanded in a non-t
 PLAN_ITER_STEP_PROMPT = """Take a look a step number {step} and all of it's subtasks in the plan.txt. Try to expand on this step even further.
 Ensure each bullet addresses a only single task. The more thorough we are now, the better! When finished, update the revised step number {step} in the plan.txt"""
 
+""" INSTALL """
+
+
+INSTALL_AGENT_SYSTEM_MESSAGE = """You are a react expert. Given a step by step plan for building a specific react app, identify all the necessary dependencies 
+required to build this project. Your output should be a list of commands to install each dependency, which means each line should have the
+following format: npm install <package>"""
+
+INSTALL_REVIEWER_SYSTEM_MESSAGE = """You are a react expert. You are a reviewer on the install team. 
+You are tasked with providing feedback on whether the list of dependencies is all encompassing.
+Ensure that the list of dependencies allows for all functionality in the plan to be installed."""
+
+INSTALL_EXECUTOR_SYSTEM_MESSAGE = """Take the list of dependecies agreed upon by the installer and reviewer and pass it to the function 
+create_dependency_list. Your only task is to suggest the function call at the correct time. You should not be outputting any text or code."""
+
+INSTALL_PROMPT = """Here is a plan for a react web app:\n {plan} \n
+Based on this plan, identify all the dependencies needed to fully build this application. 
+"""
 
 """ CODE """
 

@@ -70,10 +70,3 @@ def html_to_text(input_html_path, output_text_path):
     # Store the text in the output text file with similar formatting
     with open(output_text_path, 'w', encoding='utf-8') as output_file:
         output_file.write(all_text)
-
-
-def main():
-    html_to_text("/Users/asilverde/Desktop/API-Galore/ReactAPIDocs/use – React.html", "/Users/asilverde/Desktop/API-Galore/ReactAPIDocs/use – React.txt")
-
-if __name__ == "__main__":
-    main()

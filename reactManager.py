@@ -189,7 +189,7 @@ class ReactAppManager:
         """Install npm packages."""
         cmd = f"npm install {' '.join(packages)}"
         return self.controller.execute_command(cmd)
-
+    
     def create_react_app(self, app_name):
         """Create a new React app."""
         cmd = f"npx create-react-app {app_name}"

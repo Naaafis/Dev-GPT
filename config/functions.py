@@ -114,6 +114,31 @@ plan_functions = [
     }
 ]
 
+install_functions = [
+    {
+        "name": "create_dependency_list",
+        "description": "Write the list of dependencies to a file. All dependencies are based on the plan.",
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "file_path": {
+                    "type": "string",
+                    "description": "This should be an empty string, as the install.txt is in the highest level of the directory",
+                },
+                "file_name": {
+                    "type": "string",
+                    "description": "This should be install.txt",
+                },
+                "content": {
+                    "type": "string",
+                    "description": "The list of dependencies needed to be installed as provided by the install_agent and reviewer. Each line should be in the format: npm install <package>",
+                }
+            },
+            "required": ["file_path", "file_name", "content"]
+        },
+    }
+]
+
 code_functions = [
     {
         "name": "read_file",
