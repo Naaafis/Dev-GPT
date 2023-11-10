@@ -282,6 +282,325 @@ sme_functions = [
     }
 ]
 
+find_files_functions = [
+    {
+        "name": "list_directory_contents",
+        "description": "List the contents of a specified directory within the React app, used to identify potential files for modification.",
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "dir_path": {
+                    "type": "string",
+                    "description": "Path of the directory to list contents. Default is the root directory of the React app.",
+                }
+            },
+            "required": ["dir_path"]
+        },
+    },
+    {
+        "name": "read_file",
+        "description": "Read the contents of a specific file in the React app, used to check if the file is relevant to the high-level task.",
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "file_path": {
+                    "type": "string",
+                    "description": "Path of the file within the React app directory to be read.",
+                },
+                "file_name": {
+                    "type": "string",
+                    "description": "Name of the file to be read.",
+                }
+            },
+            "required": ["file_path", "file_name"]
+        },
+    },
+    {
+        "name": "create_new_file",
+        "description": "Create a new file within the React app if no relevant file is found. This is used when adding new features or components.",
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "file_path": {
+                    "type": "string",
+                    "description": "Path within the React app directory where the new file will be created.",
+                },
+                "file_name": {
+                    "type": "string",
+                    "description": "Name for the new file.",
+                },
+                "content": {
+                    "type": "string",
+                    "description": "Initial content to be written into the new file.",
+                }
+            },
+            "required": ["file_path", "file_name", "content"]
+        },
+    }
+]
+
+stub_writing_functions = [
+    {
+        "name": "read_file",
+        "description": "Read a file to determine where stubs need to be inserted. Essential for understanding the current structure and content of the file before modifying it.",
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "file_path": {
+                    "type": "string",
+                    "description": "The path of the file within the React app directory.",
+                },
+                "file_name": {
+                    "type": "string",
+                    "description": "The name of the file to be read.",
+                }
+            },
+            "required": ["file_path", "file_name"]
+        },
+    },
+    {
+        "name": "write_to_file",
+        "description": "Write to a file after stubs have been prepared. This function is used to save the stubs into the file.",
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "file_path": {
+                    "type": "string",
+                    "description": "The path of the file within the React app directory.",
+                },
+                "file_name": {
+                    "type": "string",
+                    "description": "The name of the file where the stubs will be written.",
+                },
+                "content": {
+                    "type": "string",
+                    "description": "The content, including the stubs, to be written into the file.",
+                }
+            },
+            "required": ["file_path", "file_name", "content"]
+        },
+    },
+    {
+        "name": "insert_into_file",
+        "description": "Insert stubs into a specific line in a file. Used to place stubs at the correct location in the file's existing content.",
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "file_path": {
+                    "type": "string",
+                    "description": "The path of the file within the React app directory.",
+                },
+                "file_name": {
+                    "type": "string",
+                    "description": "The name of the file where the stubs will be inserted.",
+                },
+                "content": {
+                    "type": "string",
+                    "description": "The stub content to be inserted into the file.",
+                },
+                "line_num": {
+                    "type": "integer",
+                    "description": "The line number at which the stub content should be inserted.",
+                }
+            },
+            "required": ["file_path", "file_name", "content", "line_num"]
+        },
+    },
+    {
+        "name": "delete_lines",
+        "description": "Delete lines from a file where stubs are no longer needed or need to be replaced. Useful for removing outdated or irrelevant stubs.",
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "file_path": {
+                    "type": "string",
+                    "description": "The path of the file within the React app directory.",
+                },
+                "file_name": {
+                    "type": "string",
+                    "description": "The name of the file from which lines will be deleted.",
+                },
+                "line_nums": {
+                    "type": "array",
+                    "items": {
+                        "type": "integer"
+                    },
+                    "description": "A list of line numbers to be deleted from the file.",
+                }
+            },
+            "required": ["file_path", "file_name", "line_nums"]
+        },
+    }
+]
+
+
+code_writing_functions = [
+    {
+        "name": "read_file",
+        "description": "Read the contents of a file to understand its current structure and context, aiding in the accurate placement of new code.",
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "file_path": {
+                    "type": "string",
+                    "description": "Path of the file within the React app directory to be read.",
+                },
+                "file_name": {
+                    "type": "string",
+                    "description": "Name of the file to be read.",
+                }
+            },
+            "required": ["file_path", "file_name"]
+        },
+    },
+    {
+        "name": "write_to_file",
+        "description": "Write new code into a specified file, replacing stubs or adding new functionalities.",
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "file_path": {
+                    "type": "string",
+                    "description": "Path of the file within the React app directory where new code will be written.",
+                },
+                "file_name": {
+                    "type": "string",
+                    "description": "Name of the file where new code will be written.",
+                },
+                "content": {
+                    "type": "string",
+                    "description": "New code content to be written into the file.",
+                }
+            },
+            "required": ["file_path", "file_name", "content"]
+        },
+    },
+    {
+        "name": "insert_into_file",
+        "description": "Insert new code content at a specific location in a file, useful for adding functionalities at the right place.",
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "file_path": {
+                    "type": "string",
+                    "description": "Path of the file within the React app directory.",
+                },
+                "file_name": {
+                    "type": "string",
+                    "description": "Name of the file to insert code into.",
+                },
+                "content": {
+                    "type": "string",
+                    "description": "Code content to be inserted at a specific line in the file.",
+                },
+                "line_num": {
+                    "type": "integer",
+                    "description": "Line number at which the new code should be inserted.",
+                }
+            },
+            "required": ["file_path", "file_name", "content", "line_num"]
+        },
+    },
+    {
+        "name": "delete_lines",
+        "description": "Remove specific lines from a file, particularly useful when replacing existing code or stubs with new implementations.",
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "file_path": {
+                    "type": "string",
+                    "description": "Path of the file within the React app directory.",
+                },
+                "file_name": {
+                    "type": "string",
+                    "description": "Name of the file from which lines will be deleted.",
+                },
+                "line_nums": {
+                    "type": "array",
+                    "items": {
+                        "type": "integer"
+                    },
+                    "description": "List of line numbers to be deleted from the file.",
+                }
+            },
+            "required": ["file_path", "file_name", "line_nums"]
+        },
+    }
+]
+
+debugging_functions = [
+    {
+        "name": "read_file",
+        "description": "Read the contents of a file to review the current code, an essential step in identifying bugs or issues.",
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "file_path": {
+                    "type": "string",
+                    "description": "Path of the file within the React app directory to be reviewed.",
+                },
+                "file_name": {
+                    "type": "string",
+                    "description": "Name of the file to be reviewed.",
+                }
+            },
+            "required": ["file_path", "file_name"]
+        },
+    },
+    {
+        "name": "insert_into_file",
+        "description": "Insert debugging code or comments at specific lines in a file, facilitating the identification and resolution of issues.",
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "file_path": {
+                    "type": "string",
+                    "description": "Path of the file within the React app directory.",
+                },
+                "file_name": {
+                    "type": "string",
+                    "description": "Name of the file where debugging code or comments will be inserted.",
+                },
+                "content": {
+                    "type": "string",
+                    "description": "Debugging content to be inserted into the file.",
+                },
+                "line_num": {
+                    "type": "integer",
+                    "description": "Line number at which debugging content should be inserted.",
+                }
+            },
+            "required": ["file_path", "file_name", "content", "line_num"]
+        },
+    },
+    {
+        "name": "delete_lines",
+        "description": "Remove lines of code that are causing issues or are no longer needed after debugging.",
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "file_path": {
+                    "type": "string",
+                    "description": "Path of the file within the React app directory.",
+                },
+                "file_name": {
+                    "type": "string",
+                    "description": "Name of the file from which problematic lines will be deleted.",
+                },
+                "line_nums": {
+                    "type": "array",
+                    "items": {
+                        "type": "integer"
+                    },
+                    "description": "List of line numbers to be deleted as part of the debugging process.",
+                }
+            },
+            "required": ["file_path", "file_name", "line_nums"]
+        },
+    }
+]
+
+
 # {
 #         "name": "create_directory",
 #         "description": "Use this to create directories within the React app directory",
