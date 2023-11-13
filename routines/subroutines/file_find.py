@@ -1,65 +1,60 @@
 from autogen import *
+from config.functions import *
 from config.prompts import *
 
-"""
-todo:
-- expand_step - in 
-"""
+from autogen.agentchat.contrib.retrieve_assistant_agent import RetrieveAssistantAgent
+from autogen.agentchat.contrib.retrieve_user_proxy_agent import RetrieveUserProxyAgent
 
-class FindFileRoutine:
-    def __init__(self, base_config, plan_config, plan_function_map):
+class FileFindRoutine:
+    """Routine to find relevant files in the React app directory."""
+    def __init__(self, base_config, file_contents_config, file_contents_function_map, ls_config, ls_function_map, file_creating_config, file_creating_function_map):
         self.base_config = base_config
-        termination_msg = lambda x: isinstance(x, dict) and "TERMINATE" == str(x.get("content", ""))[-9:].upper()
+        self.file_contents_config = file_contents_config
+        self.file_contents_function_map = file_contents_function_map
+        self.ls_config = ls_config
+        self.ls_function_map = ls_function_map
+        self.file_creating_config = file_creating_config
+        self.file_creating_function_map = file_creating_function_map
+        self.termination_msg = lambda x: isinstance(x, dict) and "TERMINATE" == str(x.get("content", ""))[-9:].upper()
+        self.files_found = []
+        self.all_sub_directories_in_components_directory = []
+        self.sub_directories_visited = []
+        self.files_left_to_visit = []
 
-        self.client = UserProxyAgent(
-            name="client",
-            max_consecutive_auto_reply=2,
-            is_termination_msg=termination_msg,
-            function_map=plan_function_map,
+        # Agents for reading file contents, listing directory contents, and creating new files
+        self.file_contents_agent = UserProxyAgent(
+            name="file_contents_agent",
+            max_consecutive_auto_reply=3,
+            is_termination_msg=self.termination_msg,
+            function_map=self.file_contents_function_map,
             human_input_mode="NEVER",
-            default_auto_reply=PLAN_CLIENT_AUTO_REPLY,
-            code_execution_config={"work_dir": "API-Galore"},
+            default_auto_reply=FILE_CONTENTS_AUTO_REPLY,
+            code_execution_config=False,
         )
 
-        self.executor = AssistantAgent(
-            name="executor",
-            llm_config=plan_config,
-            system_message=PLAN_EXECUTOR_SYSTEM_MESSAGE
+        self.ls_agent = UserProxyAgent(
+            name="ls_agent",
+            max_consecutive_auto_reply=3,
+            is_termination_msg=self.termination_msg,
+            function_map=self.ls_function_map,
+            human_input_mode="NEVER",
+            default_auto_reply=LS_AUTO_REPLY,
+            code_execution_config=False,
         )
 
-        self.planner = AssistantAgent(
-            name="planner",
-            is_termination_msg=termination_msg,
-            llm_config=base_config,
-            system_message=PLAN_AGENT_SYSTEM_MESSAGE
+        self.file_creating_agent = UserProxyAgent(
+            name="file_creating_agent",
+            max_consecutive_auto_reply=3,
+            is_termination_msg=self.termination_msg,
+            function_map=self.file_creating_function_map,
+            human_input_mode="NEVER",
+            default_auto_reply=FILE_CREATING_AUTO_REPLY,
+            code_execution_config=False,
         )
+        
 
-        self.reviewer = AssistantAgent(
-            name="reviewer",
-            is_termination_msg=termination_msg,
-            llm_config=base_config,
-            system_message=PLAN_REVIEWER_SYSTEM_MESSAGE
-        )
-
-    def init_plan(self, user_prompt):
-        groupchat = GroupChat( 
-            agents=[self.client, self.planner, self.reviewer, self.executor], messages=[], max_round=15
-        )
-
-        manager = GroupChatManager(groupchat=groupchat, llm_config=self.base_config)
-        self.client.initiate_chat(
-            manager,
-            message=user_prompt
-        )
-
-    def expand_step(self, step_num):
-        groupchat = GroupChat( 
-            agents=[self.client, self.planner, self.reviewer, self.executor], messages=[], max_round=5, 
-            dedicated_executor = self.client
-        )
-
-        manager = GroupChatManager(groupchat=groupchat, llm_config=self.base_config)
-        self.client.initiate_chat(
-            manager,
-            message=PLAN_ITER_STEP_PROMPT.format(step=step_num)
-        )
+    def find_files(self, app_directory, high_level_task):
+        # Logic to find files based on the high_level_task
+        # Use the agents to list directory contents, read file contents, and create new files as needed.
+        # Return the list of relevant file paths.
+        self.app_directory = app_directory

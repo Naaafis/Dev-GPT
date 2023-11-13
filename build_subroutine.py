@@ -21,7 +21,7 @@ class SubroutineBuilder:
             "temperature": 0,
         }
         self.react_manager = ReactAppManager(self.app_name)
-        self.app_directory = self.react_manager.get_react_app_directory
+        self.app_directory = self.react_manager.get_react_app_directory()
 
         # Initialize other necessary components.
         self.init_subroutines()
@@ -52,27 +52,48 @@ class SubroutineBuilder:
     def find_files_routine(self):
         # Define the routine for finding relevant files based on the high_level_task.
         # This will likely involve interaction with the ReactAppManager to list files and search for relevant ones.
-        self.find_files_function_map = {
-            "list_directory_contents": self.react_manager.controller.list_directory_contents,
+        self.file_contents_function_map = {
             "read_file": self.react_manager.read_file,
+        }
+        
+        self.file_contents_config = {
+            "functions": file_contents_functions,
+            "request_timeout": 600,
+            "seed": 42,
+            "config_list": self.config_list,
+            "temperature": 0,
+        }
+        
+        self.ls_function_map = {
+            "list_directory_contents": self.react_manager.list_directory_contents,
+        }
+        
+        self.ls_config = {
+            "functions": ls_functions,
+            "request_timeout": 600,
+            "seed": 42,
+            "config_list": self.config_list,
+            "temperature": 0,
+        }
+        
+        self.file_creating_function_map = {
             "create_new_file": self.react_manager.create_new_file,
         }
         
-        self.find_files_config = {
-            "functions": find_files_functions,
+        self.file_creating_config = {
+            "functions": flie_creating_functions,
             "request_timeout": 600,
             "seed": 42,
             "config_list": self.config_list,
             "temperature": 0,
         }
               
-        self.find_files = FileFindRoutine(self.base_config, self.find_files_config, self.find_files_function_map)
+        self.find_files = FileFindRoutine(self.base_config, self.file_contents_config, self.file_contents_function_map, self.ls_config, self.ls_function_map, self.file_creating_config, self.file_creating_function_map)
         
     def stub_writing_routine(self):
         # Define the routine for writing stubs to the files found in the find_files_routine.
         # This will involve reading file contents and adding 'TODO' comments or function stubs.
         self.stub_writing_function_map = {
-            "read_file": self.react_manager.read_file,
             "write_to_file": self.react_manager.write_to_file,
             "insert_into_file": self.react_manager.insert_into_file,
             "delete_lines": self.react_manager.delete_lines,
@@ -86,7 +107,19 @@ class SubroutineBuilder:
             "temperature": 0,
         }
         
-        self.stub_writing = StubWriteRoutine(self.base_config, self.stub_writing_config, self.stub_writing_function_map)
+        self.stub_reading_function_map = {
+            "read_file": self.react_manager.read_file,
+        }
+        
+        self.stub_reading_config = {
+            "functions": stub_reading_functions,
+            "request_timeout": 600,
+            "seed": 42,
+            "config_list": self.config_list,
+            "temperature": 0,
+        }
+        
+        self.stub_writing = StubWriteRoutine(self.base_config, self.stub_reading_config, self.stub_reading_function_map, self.stub_writing_config, self.stub_writing_function_map)
         
     def code_writing_routine(self):
         # Define the routine for writing the actual code based on the stubs added in the stub_writing_routine.
@@ -106,7 +139,19 @@ class SubroutineBuilder:
             "temperature": 0,
         }
         
-        self.code_writing = CodeWriteRoutine(self.base_config, self.code_writing_config, self.code_writing_function_map)
+        self.code_reading_function_map = {
+            "read_file": self.react_manager.read_file,
+        }
+        
+        self.code_reading_config = {
+            "functions": code_reading_functions,
+            "request_timeout": 600,
+            "seed": 42,
+            "config_list": self.config_list,
+            "temperature": 0,
+        }
+        
+        self.code_writing = CodeWriteRoutine(self.base_config, self.code_reading_config, self.code_reading_function_map, self.code_writing_config, self.code_writing_function_map)
 
     def debugging_routine(self):
         # Define the routine for debugging the code written in the code_writing_routine.
@@ -126,8 +171,21 @@ class SubroutineBuilder:
             "temperature": 0,
         }
         
-        self.debugging = DebugRoutine(self.base_config, self.debugging_config, self.debugging_function_map)
-#### BREAK UP THE FUNCTIONS TO ONLY HAVE ONE or TWO FUNCTION PER BLOCK
+        self.debugging_reading_function_map = {
+            "read_file": self.react_manager.read_file,
+        }
+        
+        self.debugging_reading_config = {
+            "functions": debug_reading_functions,
+            "request_timeout": 600,
+            "seed": 42,
+            "config_list": self.config_list,
+            "temperature": 0,
+        }
+            
+        
+        self.debugging = DebugRoutine(self.base_config, self.debugging_reading_config, self.debugging_reading_function_map, self.debugging_config, self.debugging_function_map)
+
 
 # The following are stubs and will need to be filled in with the actual logic.
 def main():

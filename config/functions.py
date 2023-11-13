@@ -282,8 +282,8 @@ sme_functions = [
     }
 ]
 
-find_files_functions = [
-    {
+ls_functions = [
+        {
         "name": "list_directory_contents",
         "description": "List the contents of a specified directory within the React app, used to identify potential files for modification.",
         "parameters": {
@@ -297,6 +297,9 @@ find_files_functions = [
             "required": ["dir_path"]
         },
     },
+]
+
+file_contents_functions = [
     {
         "name": "read_file",
         "description": "Read the contents of a specific file in the React app, used to check if the file is relevant to the high-level task.",
@@ -315,6 +318,9 @@ find_files_functions = [
             "required": ["file_path", "file_name"]
         },
     },
+]
+
+flie_creating_functions = [
     {
         "name": "create_new_file",
         "description": "Create a new file within the React app if no relevant file is found. This is used when adding new features or components.",
@@ -339,7 +345,7 @@ find_files_functions = [
     }
 ]
 
-stub_writing_functions = [
+stub_reading_functions = [
     {
         "name": "read_file",
         "description": "Read a file to determine where stubs need to be inserted. Essential for understanding the current structure and content of the file before modifying it.",
@@ -358,6 +364,9 @@ stub_writing_functions = [
             "required": ["file_path", "file_name"]
         },
     },
+]
+
+stub_writing_functions = [
     {
         "name": "write_to_file",
         "description": "Write to a file after stubs have been prepared. This function is used to save the stubs into the file.",
@@ -433,8 +442,7 @@ stub_writing_functions = [
     }
 ]
 
-
-code_writing_functions = [
+code_reading_functions = [
     {
         "name": "read_file",
         "description": "Read the contents of a file to understand its current structure and context, aiding in the accurate placement of new code.",
@@ -453,6 +461,9 @@ code_writing_functions = [
             "required": ["file_path", "file_name"]
         },
     },
+]
+
+code_writing_functions = [
     {
         "name": "write_to_file",
         "description": "Write new code into a specified file, replacing stubs or adding new functionalities.",
@@ -528,7 +539,7 @@ code_writing_functions = [
     }
 ]
 
-debugging_functions = [
+debug_reading_functions = [
     {
         "name": "read_file",
         "description": "Read the contents of a file to review the current code, an essential step in identifying bugs or issues.",
@@ -547,6 +558,10 @@ debugging_functions = [
             "required": ["file_path", "file_name"]
         },
     },
+]
+    
+
+debugging_functions = [
     {
         "name": "insert_into_file",
         "description": "Insert debugging code or comments at specific lines in a file, facilitating the identification and resolution of issues.",

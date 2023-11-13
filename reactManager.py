@@ -6,7 +6,7 @@ import json
 import ast
 
 class ReactAppManager:
-    def __init__(self, app_name='my_app'):
+    def __init__(self, app_name='subroutine-app'):
         self.controller = Controller()
         self.react_app_name = app_name
         
@@ -299,10 +299,13 @@ class ReactAppManager:
         if not self.react_app_name:
             return "No React app name set. Please create a React app or set its name."
 
-        # Check if file exists.
+        if not file_path:
+            file_path = ""
         path = os.path.join(self.get_react_app_directory(), file_path, file_name)
+        
+        print("path: ", path, "content: ", content)
         if not os.path.exists(path):
-            return self.create_new_file(self, file_path, file_name, content)
+            return self.create_new_file(file_path, file_name, content)
 
 
         return self.controller.write_to_file(path, content)
@@ -316,8 +319,10 @@ class ReactAppManager:
         path = os.path.join(self.get_react_app_directory(), file_path, file_name)
         if not os.path.exists(path):
             return "Invalid path: " + path
+        
+        print("path: ", path, "content: ", content, "line_num: ", line_num)
 
-        return self.controller.insert_into_file(path, content, line_num)
+        return self.controller.insert_into_file(path, content, int(line_num))
 
     def delete_lines(self, file_path, file_name, line_nums):
         """Delete lines from a specified file in the React app directory."""
@@ -329,7 +334,7 @@ class ReactAppManager:
         if not os.path.exists(path):
             return "Invalid path: " + path
 
-        return self.controller.delete_lines(path, line_nums)
+        return self.controller.delete_lines(path, int(line_nums))
 
     def rewrite_lines(self, file_path, file_name, content):
         """Rewrite specified lines to a specified file in the React app directory."""
@@ -410,60 +415,77 @@ class ReactAppManager:
 #     def edit_app_css(self, content, mode='replace', line_num=None):
 #         return self.edit_file("src/App.css", content, mode, line_num)
     
-# def main():
-#     manager = ReactAppManager()
-
-#     command = sys.argv[1]
-#     if command == "check_os":
-#         print(manager.check_os())
-#     elif command == "check_node_version":
-#         print(manager.check_node_version())
-#     elif command == "install_node_based_on_os":
-#         print(manager.install_node_based_on_os())
-#     elif command == "check_for_common_package_installers":
-#         print(manager.check_for_common_package_installers())
-#     elif command == "install_npm_packages":
-#         packages = sys.argv[2:]
-#         print(manager.install_npm_packages(packages))
-#     elif command == "create_react_app":
-#         print(manager.create_react_app(sys.argv[2]))
-#     elif command == "edit_package_json":
-#         content = sys.argv[2]
-#         print(manager.edit_package_json(content))
-#     elif command == "edit_gitignore":
-#         content = sys.argv[2]
-#         print(manager.edit_gitignore(content))
-#     elif command == "edit_README":
-#         content = sys.argv[2]
-#         print(manager.edit_README(content))
-#     elif command == "edit_index_html":
-#         content = sys.argv[2]
-#         print(manager.edit_index_html(content))
-#     elif command == "edit_manifest_json":
-#         content = sys.argv[2]
-#         print(manager.edit_manifest_json(content))
-#     elif command == "edit_index_js":
-#         content = sys.argv[2]
-#         print(manager.edit_index_js(content))
-#     elif command == "edit_app_js":
-#         content = sys.argv[2]
-#         print(manager.edit_app_js(content))
-#     elif command == "edit_app_css":
-#         content = sys.argv[2]
-#         print(manager.edit_app_css(content))
-#     elif command == "create_new_file":
-#         filename = sys.argv[2]
-#         content = sys.argv[3] if len(sys.argv) > 3 else ""
-#         directory = sys.argv[4] if len(sys.argv) > 4 else None
-#         print(manager.create_new_file(filename, content, directory))
-#     elif command == "npm_start":
-#         print(manager.npm_start())
-#     elif command == "stop_react_app":
-#         manager.stop_react_app()
-
 def main():
     manager = ReactAppManager()
-    print(manager.get_plan_items())
+
+    command = sys.argv[1]
+    if command == "check_os":
+        print(manager.check_os())
+    elif command == "check_node_version":
+        print(manager.check_node_version())
+    elif command == "install_node_based_on_os":
+        print(manager.install_node_based_on_os())
+    elif command == "check_for_common_package_installers":
+        print(manager.check_for_common_package_installers())
+    elif command == "install_npm_packages":
+        packages = sys.argv[2:]
+        print(manager.install_npm_packages(packages))
+    elif command == "create_react_app":
+        print(manager.create_react_app(sys.argv[2]))
+    elif command == "edit_package_json":
+        content = sys.argv[2]
+        print(manager.edit_package_json(content))
+    elif command == "edit_gitignore":
+        content = sys.argv[2]
+        print(manager.edit_gitignore(content))
+    elif command == "edit_README":
+        content = sys.argv[2]
+        print(manager.edit_README(content))
+    elif command == "edit_index_html":
+        content = sys.argv[2]
+        print(manager.edit_index_html(content))
+    elif command == "edit_manifest_json":
+        content = sys.argv[2]
+        print(manager.edit_manifest_json(content))
+    elif command == "edit_index_js":
+        content = sys.argv[2]
+        print(manager.edit_index_js(content))
+    elif command == "edit_app_js":
+        content = sys.argv[2]
+        print(manager.edit_app_js(content))
+    elif command == "edit_app_css":
+        content = sys.argv[2]
+        print(manager.edit_app_css(content))
+    elif command == "create_new_file":
+        filename = sys.argv[2]
+        content = sys.argv[3] if len(sys.argv) > 3 else ""
+        directory = sys.argv[4] if len(sys.argv) > 4 else None
+        print(manager.create_new_file(filename, content, directory))
+    elif command == "write_to_file":
+        filename = sys.argv[2]
+        content = sys.argv[3] if len(sys.argv) > 3 else ""
+        directory = sys.argv[4] if len(sys.argv) > 4 else ""
+        print(manager.write_to_file(directory, filename, content))
+    elif command == "insert_into_file":
+        filename = sys.argv[2]
+        content = sys.argv[3] if len(sys.argv) > 3 else ""
+        line_num = sys.argv[4] if len(sys.argv) > 4 else 0
+        directory = sys.argv[5] if len(sys.argv) > 5 else ""
+        print("directory: ", directory, "filename: ", filename, "content: ", content, "line_num: ", line_num)
+        print(manager.insert_into_file(directory, filename, content, line_num))
+    elif command == "delete_lines":
+        filename = sys.argv[2]
+        line_nums = sys.argv[3] if len(sys.argv) > 3 else ""
+        directory = sys.argv[4] if len(sys.argv) > 4 else ""
+        print(manager.delete_lines(directory, filename, line_nums))
+    elif command == "npm_start":
+        print(manager.npm_start())
+    elif command == "stop_react_app":
+        manager.stop_react_app()
+
+# def main():
+#     manager = ReactAppManager()
+#     print(manager.get_plan_items())
 
 if __name__ == "__main__":
     main()
@@ -517,6 +539,9 @@ python reactManager.py create_new_file sample.txt "Hello World"
 python reactManager.py npm_start
 
 python reactManager.py stop_react_app
+
+# to write to a file
+python reactManager.py write_to_file sample.txt "Hello World"
 
 
 '''

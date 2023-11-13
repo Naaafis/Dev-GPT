@@ -145,5 +145,8 @@ Generally, only store pure functions in this folder since if a utility function 
 Obviously there are exceptions to this rule.
 """
 
+""" FILE FINDING """
+FILE_CONTENTS_AUTO_REPLY = """Have you fully planned every component required for the client's idea? Take a deep breath.
+
 
 """ TEST & EXEC """

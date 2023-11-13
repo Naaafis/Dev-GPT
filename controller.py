@@ -68,6 +68,8 @@ class Controller:
         with open(file_path, 'r') as file:
             lines = file.readlines()
 
+        print("length of lines: ", len(lines))
+        print("line_num: ", line_num)
         if line_num > len(lines):
             # Append new lines to reach the desired line number
             lines.extend(['\n'] * (line_num - len(lines) - 1))
@@ -93,7 +95,7 @@ class Controller:
         
         with open(file_path, 'w') as file:
             file.write('\n'.join(content))
-        return f"Lines {lines} replaced with blank space in {file_path}!"
+        return f"Lines {lines} deleted from {file_path}!"
 
 
     def rewrite_lines(self, file_path, lines_content):
