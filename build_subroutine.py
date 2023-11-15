@@ -127,7 +127,6 @@ class SubroutineBuilder:
             "temperature": 0,
         }
         
-        self.code_writing = CodeWriteRoutine(self.base_config, self.code_reading_config, self.code_reading_function_map, self.code_writing_config, self.code_writing_function_map)
 
         # Define the groupchat's configs for debugging the code written in the code_writing_routine.
         # This will check for errors and ensure the code meets the high_level_task requirements.
@@ -152,7 +151,6 @@ class SubroutineBuilder:
             "temperature": 0,
         }
             
-        self.debugging = DebugRoutine(self.base_config, self.debugging_reading_config, self.debugging_reading_function_map, self.debugging_config, self.debugging_function_map)
 
 
 # The following are stubs and will need to be filled in with the actual logic.
@@ -160,11 +158,9 @@ def main():
     # Entry point for the script.
     # Parse arguments and create an instance of SubroutineBuilder.
     # Start the routines for the development process.
-    # subroutineBuilder = SubroutineBuilder("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", "subroutine-app", "Add firebase signin functionality to the specified app name. My google API key is _____.")
-    # subroutineBuilder.perform_subroutines()
-    
-    ReactAppManager = ReactAppManager("subroutine-app")
-    list_of_files = ReactAppManager.get_react_app_directory()
+    subroutineBuilder = SubroutineBuilder("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", "subroutine-app", "Add firebase signin functionality to the specified app name. My google API key is _____.")
+    subroutineBuilder.perform_subroutines()
+
 
 if __name__ == "__main__":
     main()
