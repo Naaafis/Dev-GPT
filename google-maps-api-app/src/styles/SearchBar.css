@@ -1,0 +1,71 @@
+.search-container {
+    display: flex;
+    justify-content: center;
+    padding: 20px;
+    margin-top: 20px;
+}
+
+.search-input {
+    width: calc(100% - 120px);
+    /* Adjust width, considering button width and padding */
+    padding: 12px 20px;
+    margin-right: 10px;
+    /* Spacing between input and button */
+    font-size: 16px;
+    /* Larger font size for better readability */
+    border: 1px solid #ddd;
+    /* Subtle border */
+    border-radius: 4px;
+    /* Rounded corners */
+    box-sizing: border-box;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+    /* Soft shadow for depth */
+}
+
+.search-button {
+    width: 100px;
+    /* Fixed width for the button */
+    padding: 12px 20px;
+    background-color: #4CAF50;
+    /* A pleasant green */
+    color: white;
+    /* White text color */
+    border: none;
+    /* No border */
+    border-radius: 4px;
+    /* Rounded corners */
+    cursor: pointer;
+    /* Cursor indicates an action */
+    font-size: 16px;
+    /* Match input font size */
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+    /* Consistent shadow with input */
+    transition: background-color 0.3s;
+    /* Smooth transition for hover effect */
+}
+
+.search-button:hover {
+    background-color: #45a049;
+    /* Slightly darker green on hover */
+}
+
+/* Responsive adjustments */
+@media (max-width: 600px) {
+    .search-container {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .search-input {
+        width: 100%;
+        /* Full width on small screens */
+        margin-right: 0;
+        margin-bottom: 10px;
+        /* Spacing between input and button on small screens */
+    }
+
+    .search-button {
+        width: 100%;
+        /* Full width on small screens */
+    }
+}
