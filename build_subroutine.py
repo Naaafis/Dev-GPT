@@ -30,6 +30,7 @@ class SubroutineBuilder:
         self.find_files = FileFindRoutine(self.base_config, high_level_task, self.file_contents_config, self.file_creating_config, self.find_files_function_map)
         self.stub_writing = StubWriteRoutine(self.base_config, high_level_task, self.stub_reading_config, self.stub_writing_config, self.stub_writing_function_map)
         self.code_writing = CodeWriteRoutine(self.base_config, high_level_task, self.code_reading_config, self.code_writing_config, self.code_writing_function_map)
+        self.debugging = DebugRoutine(self.base_config, high_level_task, self.debugging_reading_config, self.debugging_config, self.debugging_function_map)
         
     def perform_subroutines(self):
         # Perform routines for file finding, stub writing, code writing, and debugging.
@@ -43,13 +44,13 @@ class SubroutineBuilder:
         for file in file_names:
             print("STUB WRITING ROUTINE")
             print("File: ", file)
-            self.stub_writing.stub_write(file)
+            print(self.stub_writing.stub_write(file))
             
             print("CODE WRITING ROUTINE")
-            self.code_writing.code_write(file)
+            print(self.code_writing.code_write(file))
             
             print("DEBUGGING ROUTINE")
-            self.debugging.debug(file)
+            print(self.debugging.debug(file))
             
         print("DONE")
         

@@ -2,9 +2,6 @@ from autogen import *
 from config.functions import *
 from config.prompts import *
 
-from autogen.agentchat.contrib.retrieve_assistant_agent import RetrieveAssistantAgent
-from autogen.agentchat.contrib.retrieve_user_proxy_agent import RetrieveUserProxyAgent
-
 class FileFindRoutine:
     """
         Routine to find relevant files in the React app directory.
@@ -125,8 +122,8 @@ class FileFindRoutine:
         
         self.client.initiate_chat(
             manager,
-            message=FILE_CREATE_PROMPT.format(high_level_task=self.high_level_task)
+            message=FILE_CREATE_PROMPT.format(high_level_task=self.high_level_task, files_found=self.client.last_message()["content"])
         )
         
         # need to return the list of relevant file paths
-        return relevant_file_paths
+        return self.client.last_message()["content"]
