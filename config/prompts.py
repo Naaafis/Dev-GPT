@@ -1,6 +1,19 @@
+"""
+----------------------------------------------------------------------------------------------
+Higher level prompt definitions intended for:
+
+    - Front-end integration routines
+    - Task creating routines (plan, install, code, test, debug)
+        - Calls file finding subroutines
+        - Calls stub writing subroutines
+        - Calls code writing subroutines
+        - Calls debugging subroutines
+    - Test creating routines
+    - Feedback performing routines
+----------------------------------------------------------------------------------------------
+"""
+
 """ PLAN """
-
-
 PLAN_AGENT_SYSTEM_MESSAGE = """You are the product manager on a team building a react project. 
 Your job is break down the client's idea into a step by step set of instructions that a software engineer can code. 
 Each instruction should correspond to a single component or function that can be unit tested. 
@@ -145,8 +158,28 @@ Generally, only store pure functions in this folder since if a utility function 
 Obviously there are exceptions to this rule.
 """
 
-""" FILE FINDING """
-FILE_CONTENTS_AUTO_REPLY = """Have you fully planned every component required for the client's idea? Take a deep breath.
+"""
+----------------------------------------------------------------------------------------------
+Subroutine level prompt definitions intended for:
 
+    - File finding subroutine
+    
+    - Stub writing subroutine
+    
+    - Code writing subroutine
+    
+    - Debugging subroutine
+----------------------------------------------------------------------------------------------
+"""
+""" FILE FINDING """
+
+
+""" STUB WRITING """
+
+
+""" CODE WRITING """
+
+
+""" DEBUGGING """
 
 """ TEST & EXEC """

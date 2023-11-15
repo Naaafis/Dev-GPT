@@ -69,12 +69,17 @@ class ReactAppManager:
         """Get the root directory."""
         return self.root_directory
     
-    def list_react_files(self):
+    def list_react_files(self, directory=None):
         """List the files in the React app directory."""
         if not self.react_app_name:
             return "No React app name set. Please create a React app or set its name."
         
-        return self.controller.list_directory_contents(self.get_react_app_directory())
+        if not directory:
+            directory = self.get_react_app_directory()
+        else:
+            directory = os.path.join(self.get_react_app_directory(), directory)    
+        
+        return self.controller.list_directory_contents(directory)
     
     def list_react_directory_contents(self):
         """Recursively list the contents of sub directories in the React app directory."""
@@ -287,6 +292,11 @@ class ReactAppManager:
 
         # If directory is provided, check if it exists or create it.
         path = os.path.join(self.get_react_app_directory(), file_path)
+        
+        # Check if the file already exists using list_react_files
+        if file_name in self.list_react_files(file_path):
+            return f"File '{file_name}' already exists in the directory '{file_path}'."
+        
         if not os.path.exists(path):
             os.makedirs(path)
 
@@ -460,7 +470,7 @@ def main():
         filename = sys.argv[2]
         content = sys.argv[3] if len(sys.argv) > 3 else ""
         directory = sys.argv[4] if len(sys.argv) > 4 else None
-        print(manager.create_new_file(filename, content, directory))
+        print(manager.create_new_file( directory, filename, content))
     elif command == "write_to_file":
         filename = sys.argv[2]
         content = sys.argv[3] if len(sys.argv) > 3 else ""
@@ -482,6 +492,13 @@ def main():
         print(manager.npm_start())
     elif command == "stop_react_app":
         manager.stop_react_app()
+    elif command == "list_react_files":
+        directory = sys.argv[2] if len(sys.argv) > 2 else None
+        print(manager.list_react_files(directory))
+    elif command == "read_file":
+        filename = sys.argv[2]
+        directory = sys.argv[3] if len(sys.argv) > 3 else ""
+        print(manager.read_file(directory, filename))
 
 # def main():
 #     manager = ReactAppManager()
