@@ -31,6 +31,8 @@ class SubroutineBuilder:
         self.stub_writing = StubWriteRoutine(self.base_config, self.stub_reading_config, self.stub_writing_config, self.stub_writing_function_map)
         self.code_writing = CodeWriteRoutine(self.base_config, self.code_reading_config, self.code_writing_config, self.code_writing_function_map)
         self.debugging = DebugRoutine(self.base_config, self.debugging_reading_config, self.debugging_config, self.debugging_function_map)
+
+        self.perform_subroutines()
         
     def append_files_to_task_description(self, high_level_task, file_names):
         file_list_str = ', '.join(file_names)
@@ -48,25 +50,46 @@ class SubroutineBuilder:
         # Perform routines for file finding, stub writing, code writing, and debugging.
         # Each of these routines will correspond to a phase in the development process.
         # These will interact with reactManager to perform tasks.
-        
-        print("FIND FILES ROUTINE")
-        file_names = self.find_files.find_files()
-        print("List of relevant files: ", file_names)
-        
-        updated_task_description = self.append_files_to_task_description(self.high_level_task, file_names)
-        
-        # for file in file_names:
-        #     print("STUB WRITING ROUTINE")
-        #     print("File: ", file)
-        #     print(self.stub_writing.stub_write(file, updated_task_description))
+        # self.planner.init_plan(self.user_prompt)
+        # self.installer.find_dependencies(self.react_manager.read_file("", "plan.txt"))
+        plan_items = self.react_manager.get_plan_items()
+        if not plan_items:
+            print("PLAN ROUTINE")
+            self.planner.init_plan(self.user_prompt)
+            plan_items = self.react_manager.get_plan_items()
+
+        print("CODE ROUTINE")
+        #for t in range(len(plan_items)):
+        task_list = plan_items[1]
+        full_task = "\n".join(task_list)
+        for step in range(1, len(task_list)):
+            print("FIND FILES ROUTINE")
+            file_names = self.find_files.find_files(full_task)
+            print("List of relevant files: ", file_names)
             
-        #     print("CODE WRITING ROUTINE")
-        #     print(self.code_writing.code_write(file, updated_task_description))
+            updated_task_description = self.append_files_to_task_description(task_list[step], file_names)
             
-        #     print("DEBUGGING ROUTINE")
-        #     print(self.debugging.debug(file, updated_task_description))
-            
-        # print("DONE")
+            for file in file_names:
+                print("File: ", file)
+                print("STUB WRITING ROUTINE")
+                print(self.stub_writing.stub_write(file, updated_task_description))
+                
+                print("CODE WRITING ROUTINE")
+                print(self.code_writing.code_write(file, updated_task_description))
+
+        print("LINT")
+        numFailed, output = self.react_manager.lint()
+        while(numFailed):
+            self.debugging.debug(full_task, output)
+            numFailed, output = self.react_manager.lint()
+
+        print("EXEC TEST")
+        numFailed, output = self.react_manager.exec_tests()
+        while(numFailed):
+            self.debugging.debug(full_task, output)
+            numFailed, output = self.react_manager.exec_tests()
+
+        print("DONE")
         
     
     def init_subroutine_configs(self):
@@ -87,7 +110,7 @@ class SubroutineBuilder:
         }
         
         self.file_creating_config = {
-            "functions": flie_creating_functions,
+            "functions": file_creating_functions,
             "request_timeout": 600,
             "seed": 42,
             "config_list": self.config_list,
@@ -170,8 +193,8 @@ def main():
     # Entry point for the script.
     # Parse arguments and create an instance of SubroutineBuilder.
     # Start the routines for the development process.
-    subroutineBuilder = SubroutineBuilder("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", "subroutine-app", "Add firebase signin functionality to the specified app name. My google API key is _____.")
-    subroutineBuilder.perform_subroutines()
+    subroutineBuilder = SubroutineBuilder("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", "new-app", "Recreate google maps with just the api.")
+    # subroutineBuilder.perform_subroutines()
     
     # ReactAppManager = ReactAppManager("subroutine-app")
     # list_of_files = ReactAppManager.get_react_app_directory()

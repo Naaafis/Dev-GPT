@@ -350,7 +350,7 @@ file_contents_functions = [
     }
 ]
 
-flie_creating_functions = [
+file_creating_functions = [
     {
         "name": "create_new_file",
         "description": "Create a new file within the React app if no relevant file is found. This is used when adding new features or components.",
