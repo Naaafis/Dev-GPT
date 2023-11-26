@@ -70,7 +70,7 @@ class CodeWriteRoutine:
 
         self.code_reviewer = AssistantAgent(
             name="code_reviewer",
-            llm_config=self.code_reading_config
+            llm_config=self.code_reading_config,
             system_message=CODE_REVIEW_AGENT_SYSTEM_MESSAGE
         )
     

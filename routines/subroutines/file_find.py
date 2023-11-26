@@ -22,8 +22,8 @@ class FileFindRoutine:
             If unsure, consider re-evaluating the directory or consulting the contents of the current files for further insights.
         """
 
-        self.client = UserProxyAgent(
-            name="client",
+        self.find_client = UserProxyAgent(
+            name="file_find_client",
             max_consecutive_auto_reply=4,
             function_map=find_files_function_map,
             human_input_mode="NEVER",
@@ -81,6 +81,21 @@ class FileFindRoutine:
             system_message=FILE_CONTENTS_REVIEWER_SYSTEM_MESSAGE.format(high_level_task=self.high_level_task)
         )
         
+        FILE_CREATE_CLIENT_AUTO_REPLY = """
+            Are you sure all relevant files have been created? Reflect on the current list of files identified. 
+            Do they all exist in the React app directory? 
+            If unsure, consider re-evaluating the directory or consulting the contents of the sub-directories for further insights.
+        """
+
+        self.create_client = UserProxyAgent(
+            name="file_create_client",
+            max_consecutive_auto_reply=3,
+            function_map=find_files_function_map,
+            human_input_mode="NEVER",
+            default_auto_reply=FILE_CREATE_CLIENT_AUTO_REPLY,
+            code_execution_config=False,
+        )
+        
         FILE_CREATE_AGENT_SYSTEM_MESSAGE = """
             Your role is to create new files within the React app when required. 
             This task is essential when the current high-level task involves adding new features or components. 
@@ -115,7 +130,7 @@ class FileFindRoutine:
         
         self.file_create_reviewer = AssistantAgent(
             name="file_create_reviewer",
-            llm_config=self.base_config,
+            llm_config=self.file_contents_config,
             system_message=FILE_CREATE_REVIEWER_SYSTEM_MESSAGE
         )
     
@@ -129,7 +144,7 @@ class FileFindRoutine:
         
         # need to create the groupchat for finding files
         self.find_files_groupchat = GroupChat(
-            agents=[self.client, self.file_finder, self.file_find_reviewer], messages=[], max_round=20
+            agents=[self.find_client, self.file_finder, self.file_find_reviewer], messages=[], max_round=20
         )
         
         manager = GroupChatManager(groupchat=self.find_files_groupchat, llm_config=self.base_config)
@@ -140,14 +155,14 @@ class FileFindRoutine:
             The final output of this groupchat should be a list of relevant files. This should be the last message in the chat.
         """
         
-        self.client.initiate_chat(
+        self.find_client.initiate_chat(
             manager,
             message=FILE_FIND_PROMPT.format(high_level_task=self.high_level_task)
         )
         
         # need to create the groupchat for creating files
         self.create_files_groupchat = GroupChat(
-            agents=[self.client, self.file_creator, self.file_create_reviewer], messages=[], max_round=20
+            agents=[self.create_client, self.file_creator, self.file_create_reviewer], messages=[], max_round=20
         )
         
         manager = GroupChatManager(groupchat=self.create_files_groupchat, llm_config=self.base_config)
@@ -158,10 +173,12 @@ class FileFindRoutine:
             The final output of this groupchat should be a list of relevant files. This should be the last message in the chat.
         """
         
-        self.client.initiate_chat(
+        self.create_client.initiate_chat(
             manager,
-            message=FILE_CREATE_PROMPT.format(high_level_task=self.high_level_task, files_found=self.client.last_message()["content"])
+            message=FILE_CREATE_PROMPT.format(high_level_task=self.high_level_task, files_found=self.find_client.last_message()["content"])
         )
         
+        print("FileFindRoutine: Files found/created", self.create_client.last_message()["content"])
+        
         # need to return the list of relevant file paths
-        return self.client.last_message()["content"]
+        return self.find_client.last_message()["content"]

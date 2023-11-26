@@ -51,22 +51,22 @@ class SubroutineBuilder:
         
         print("FIND FILES ROUTINE")
         file_names = self.find_files.find_files()
-        print("List of files found: ", file_names)
+        print("List of relevant files: ", file_names)
         
         updated_task_description = self.append_files_to_task_description(self.high_level_task, file_names)
         
-        for file in file_names:
-            print("STUB WRITING ROUTINE")
-            print("File: ", file)
-            print(self.stub_writing.stub_write(file, updated_task_description))
+        # for file in file_names:
+        #     print("STUB WRITING ROUTINE")
+        #     print("File: ", file)
+        #     print(self.stub_writing.stub_write(file, updated_task_description))
             
-            print("CODE WRITING ROUTINE")
-            print(self.code_writing.code_write(file, updated_task_description))
+        #     print("CODE WRITING ROUTINE")
+        #     print(self.code_writing.code_write(file, updated_task_description))
             
-            print("DEBUGGING ROUTINE")
-            print(self.debugging.debug(file, updated_task_description))
+        #     print("DEBUGGING ROUTINE")
+        #     print(self.debugging.debug(file, updated_task_description))
             
-        print("DONE")
+        # print("DONE")
         
     
     def init_subroutine_configs(self):
@@ -141,8 +141,6 @@ class SubroutineBuilder:
             "temperature": 0,
         }
         
-        self.code_writing = CodeWriteRoutine(self.base_config, self.code_reading_config, self.code_reading_function_map, self.code_writing_config, self.code_writing_function_map)
-
         # Define the groupchat's configs for debugging the code written in the code_writing_routine.
         # This will check for errors and ensure the code meets the high_level_task requirements.
         self.debugging_function_map = {
@@ -166,15 +164,13 @@ class SubroutineBuilder:
             "temperature": 0,
         }
             
-        self.debugging = DebugRoutine(self.base_config, self.debugging_reading_config, self.debugging_reading_function_map, self.debugging_config, self.debugging_function_map)
-
 
 # The following are stubs and will need to be filled in with the actual logic.
 def main():
     # Entry point for the script.
     # Parse arguments and create an instance of SubroutineBuilder.
     # Start the routines for the development process.
-    subroutineBuilder = SubroutineBuilder("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", "subroutine-app", "Add firebase signin functionality to the specified app name. My google API key is _____.")
+    subroutineBuilder = SubroutineBuilder("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", "subroutine-app", "Add firebase signin functionality to the specified app name. My google API key is _____.")
     subroutineBuilder.perform_subroutines()
     
     # ReactAppManager = ReactAppManager("subroutine-app")

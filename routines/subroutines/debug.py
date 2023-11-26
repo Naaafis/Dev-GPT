@@ -7,16 +7,17 @@ class DebugRoutine:
     Routine for debugging the code written in the code_writing_routine.
     Checks for errors and ensures the code meets the high_level_task requirements.
     """
-    def __init__(self, base_config, high_level_task, debug_reading_config, debug_writing_config, debugging_function_map):
+    def __init__(self, base_config, debug_reading_config, debug_writing_config, debugging_function_map):
         self.base_config = base_config
-        self.high_level_task = high_level_task
         self.debug_reading_config = debug_reading_config
         self.debug_writing_config = debug_writing_config
         self.debugging_function_map = debugging_function_map
 
         DEBUG_CLIENT_AUTO_REPLY = """
-            ~ Need to fill in the auto reply here ~
+            Reflect on the debugging process. Are there areas in the code that might still have issues or not fully align with the project's goals? 
+            Ensure all potential bugs are addressed. Once you believe the debugging is thorough and complete, reply with 'done'.
         """
+
 
         self.client = UserProxyAgent(
             name="client",
@@ -28,10 +29,12 @@ class DebugRoutine:
         )
 
         DEBUG_READING_AGENT_SYSTEM_MESSAGE = """
-        
-            ~ Need to fill in the system message here ~
-            
+            Your role is to meticulously review the code to identify any bugs or issues. Use the 'read_file' function as needed to examine the code thoroughly. 
+            Pay close attention to any parts that might be problematic or misaligned with the project's objectives. Your detailed review is crucial for successful debugging.
+            Remember to split 'file_path' into the directory and file name. For instance, if 'file_path' is 'src/utils/helper.js',
+            your read_file call should be with 'src/utils' as the directory and 'helper.js' as the file name.
         """
+
         
         self.debug_reader = AssistantAgent(
             name="debug_reader",
@@ -40,8 +43,13 @@ class DebugRoutine:
         )
 
         DEBUG_WRITING_AGENT_SYSTEM_MESSAGE = """
-            ~ Need to fill in the system message here ~
+            As a debugger, your task is to address and fix any issues identified in the code. Utilize the 'write_to_file' function for making corrections. 
+            Focus on enhancing the code's functionality and ensuring it meets the project's requirements and objectives.
+            Remember to split 'file_path' into the directory and file name. For instance, if 'file_path' is 'src/utils/helper.js',
+            your write_to_file call should be with 'src/utils' as the directory and 'helper.js' as the file name. You will
+            have to provide the content to be written to the file as the third argument to the function.
         """
+
 
         self.debug_writer = AssistantAgent(
             name="debug_writer",
@@ -50,12 +58,16 @@ class DebugRoutine:
         )
 
         DEBUG_REVIEW_AGENT_SYSTEM_MESSAGE = """
-            ~ Need to fill in the system message here ~
+            Your responsibility is to review the changes made during the debugging process. Ensure that the updated code is free of bugs and aligns with the project's objectives. 
+            Use the 'read_file' function to access the updated code and provide feedback or further suggestions to refine the code as needed.
+            Remember to split 'file_path' into the directory and file name. For instance, if 'file_path' is 'src/utils/helper.js',
+            your read_file call should be with 'src/utils' as the directory and 'helper.js' as the file name.
         """
+
 
         self.debug_reviewer = AssistantAgent(
             name="debug_reviewer",
-            llm_config=self.base_config,
+            llm_config=self.debug_reading_config,
             system_message=DEBUG_REVIEW_AGENT_SYSTEM_MESSAGE
         )
     
@@ -70,8 +82,10 @@ class DebugRoutine:
         manager = GroupChatManager(groupchat=self.debug_groupchat, llm_config=self.base_config)
         
         DEBUG_PROMPT = """
-            ~ Need to fill in the prompt here ~
+            Our current focus is on debugging '{file_path}' as part of our high-level task: '{high_level_task}'. Review the code for any bugs or issues, and ensure it aligns with our project goals. 
+            Address any identified issues to enhance the overall quality and functionality of the code.
         """
+
         
         self.client.initiate_chat(
             manager,
