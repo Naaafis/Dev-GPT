@@ -28,10 +28,22 @@ class SubroutineBuilder:
         # Initialize config and function maps for each routine.
         self.init_subroutine_configs()
         self.find_files = FileFindRoutine(self.base_config, high_level_task, self.file_contents_config, self.file_creating_config, self.find_files_function_map)
-        self.stub_writing = StubWriteRoutine(self.base_config, high_level_task, self.stub_reading_config, self.stub_writing_config, self.stub_writing_function_map)
-        self.code_writing = CodeWriteRoutine(self.base_config, high_level_task, self.code_reading_config, self.code_writing_config, self.code_writing_function_map)
-        self.debugging = DebugRoutine(self.base_config, high_level_task, self.debugging_reading_config, self.debugging_config, self.debugging_function_map)
+        self.stub_writing = StubWriteRoutine(self.base_config, self.stub_reading_config, self.stub_writing_config, self.stub_writing_function_map)
+        self.code_writing = CodeWriteRoutine(self.base_config, self.code_reading_config, self.code_writing_config, self.code_writing_function_map)
+        self.debugging = DebugRoutine(self.base_config, self.debugging_reading_config, self.debugging_config, self.debugging_function_map)
         
+    def append_files_to_task_description(self, high_level_task, file_names):
+        file_list_str = ', '.join(file_names)
+        return f"{high_level_task}. Involved files: {file_list_str}"
+    
+        '''
+        # Example usage:
+        high_level_task = "Create a service worker component"
+        file_names = ["src/App.js", "src/components/Component.js", "src/utils/helpers.js"]
+        updated_task_description = append_files_to_task_description(high_level_task, file_names)
+        '''
+
+    
     def perform_subroutines(self):
         # Perform routines for file finding, stub writing, code writing, and debugging.
         # Each of these routines will correspond to a phase in the development process.
@@ -41,16 +53,18 @@ class SubroutineBuilder:
         file_names = self.find_files.find_files()
         print("List of files found: ", file_names)
         
+        updated_task_description = self.append_files_to_task_description(self.high_level_task, file_names)
+        
         for file in file_names:
             print("STUB WRITING ROUTINE")
             print("File: ", file)
-            print(self.stub_writing.stub_write(file))
+            print(self.stub_writing.stub_write(file, updated_task_description))
             
             print("CODE WRITING ROUTINE")
-            print(self.code_writing.code_write(file))
+            print(self.code_writing.code_write(file, updated_task_description))
             
             print("DEBUGGING ROUTINE")
-            print(self.debugging.debug(file))
+            print(self.debugging.debug(file, updated_task_description))
             
         print("DONE")
         
@@ -160,11 +174,11 @@ def main():
     # Entry point for the script.
     # Parse arguments and create an instance of SubroutineBuilder.
     # Start the routines for the development process.
-    # subroutineBuilder = SubroutineBuilder("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", "subroutine-app", "Add firebase signin functionality to the specified app name. My google API key is _____.")
-    # subroutineBuilder.perform_subroutines()
+    subroutineBuilder = SubroutineBuilder("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", "subroutine-app", "Add firebase signin functionality to the specified app name. My google API key is _____.")
+    subroutineBuilder.perform_subroutines()
     
-    ReactAppManager = ReactAppManager("subroutine-app")
-    list_of_files = ReactAppManager.get_react_app_directory()
+    # ReactAppManager = ReactAppManager("subroutine-app")
+    # list_of_files = ReactAppManager.get_react_app_directory()
 
 if __name__ == "__main__":
     main()

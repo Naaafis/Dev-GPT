@@ -21,7 +21,6 @@ class DebugRoutine:
         self.client = UserProxyAgent(
             name="client",
             max_consecutive_auto_reply=3,
-            is_termination_msg=self.termination_msg,
             function_map=debugging_function_map,
             human_input_mode="NEVER",
             default_auto_reply=DEBUG_CLIENT_AUTO_REPLY,

@@ -323,7 +323,8 @@ file_contents_functions = [
             "properties": {
                 "file_path": {
                     "type": "string",
-                    "description": "Path of the file within the React app directory to be read.",
+                    "description": "Path of the file within the React app directory to be read." +
+                    "Leave as empty string if the file is in the root of the React app directory.",
                 },
                 "file_name": {
                     "type": "string",
@@ -358,7 +359,8 @@ flie_creating_functions = [
             "properties": {
                 "file_path": {
                     "type": "string",
-                    "description": "Path within the React app directory where the new file will be created.",
+                    "description": "Path within the React app directory where the new file will be created." +
+                    "Leave as empty string if the file should be created in the root of the React app directory.",
                 },
                 "file_name": {
                     "type": "string",
@@ -366,7 +368,7 @@ flie_creating_functions = [
                 },
                 "content": {
                     "type": "string",
-                    "description": "Initial content to be written into the new file.",
+                    "description": "Initial content to be written into the new file. Each line should end with a new line character (\\n) and the content should be indented and spaced correctly." ,
                 }
             },
             "required": ["file_path", "file_name", "content"]
@@ -397,7 +399,8 @@ stub_reading_functions = [
             "properties": {
                 "file_path": {
                     "type": "string",
-                    "description": "The path of the file within the React app directory.",
+                    "description": "The path of the file within the React app directory." + 
+                    "Leave as empty string if the file is in the root of the React app directory.",
                 },
                 "file_name": {
                     "type": "string",
@@ -418,7 +421,8 @@ stub_writing_functions = [
             "properties": {
                 "file_path": {
                     "type": "string",
-                    "description": "The path of the file within the React app directory.",
+                    "description": "The path of the file within the React app directory." +
+                    "Leave as empty string if the file should be created in the root of the React app directory.",
                 },
                 "file_name": {
                     "type": "string",
@@ -426,7 +430,7 @@ stub_writing_functions = [
                 },
                 "content": {
                     "type": "string",
-                    "description": "The content, including the stubs, to be written into the file.",
+                    "description": "The content, including the stubs, to be written into the file. Each line should end with a new line character (\\n) and the content should be indented and spaced correctly.",
                 }
             },
             "required": ["file_path", "file_name", "content"]
@@ -443,7 +447,8 @@ code_reading_functions = [
             "properties": {
                 "file_path": {
                     "type": "string",
-                    "description": "Path of the file within the React app directory to be read.",
+                    "description": "Path of the file within the React app directory to be read." + 
+                    "Leave as empty string if the file is in the root of the React app directory.",
                 },
                 "file_name": {
                     "type": "string",
@@ -464,7 +469,8 @@ code_writing_functions = [
             "properties": {
                 "file_path": {
                     "type": "string",
-                    "description": "Path of the file within the React app directory where new code will be written.",
+                    "description": "Path of the file within the React app directory where new code will be written." + 
+                    "Leave as empty string if the file should be created in the root of the React app directory.",
                 },
                 "file_name": {
                     "type": "string",
@@ -472,7 +478,7 @@ code_writing_functions = [
                 },
                 "content": {
                     "type": "string",
-                    "description": "New code content to be written into the file.",
+                    "description": "New code content to be written into the file. Each line should end with a new line character (\\n) and the content should be indented and spaced correctly.",
                 }
             },
             "required": ["file_path", "file_name", "content"]
@@ -489,7 +495,8 @@ debug_reading_functions = [
             "properties": {
                 "file_path": {
                     "type": "string",
-                    "description": "Path of the file within the React app directory to be reviewed.",
+                    "description": "Path of the file within the React app directory to be reviewed." + 
+                    "Leave as empty string if the file is in the root of the React app directory.",
                 },
                 "file_name": {
                     "type": "string",
@@ -511,7 +518,8 @@ debugging_functions = [
             "properties": {
                 "file_path": {
                     "type": "string",
-                    "description": "Path of the file within the React app directory where new code will be written.",
+                    "description": "Path of the file within the React app directory where new code will be written." +
+                    "Leave as empty string if the file should be created in the root of the React app directory.",
                 },
                 "file_name": {
                     "type": "string",
@@ -519,7 +527,7 @@ debugging_functions = [
                 },
                 "content": {
                     "type": "string",
-                    "description": "New code content to be written into the file.",
+                    "description": "New code content to be written into the file. Each line should end with a new line character (\\n) and the content should be indented and spaced correctly.",
                 }
             },
             "required": ["file_path", "file_name", "content"]

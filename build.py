@@ -35,7 +35,7 @@ class Builder:
 
         print("CODE ROUTINE")
         #for t in range(len(plan_items)):
-        step = plan_items[2]
+        step = plan_items[3]
         step_str = "\n".join(step)
         for sub in range(1, len(step)):
             self.coder.init_code(step[sub], step_str)
@@ -100,7 +100,7 @@ class Builder:
 
 
 def main():
-    builder = Builder("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", "my_app", "Recreate google maps with just the api.")
+    builder = Builder("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", "my_app", "Recreate google maps with just the api.")
     builder.build()
 
 if __name__ == "__main__":
