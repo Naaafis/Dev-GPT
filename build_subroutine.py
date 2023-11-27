@@ -33,7 +33,7 @@ class SubroutineBuilder:
         self.debugging = DebugRoutine(self.base_config, self.debugging_reading_config, self.debugging_config, self.debugging_function_map)
         
     def append_files_to_task_description(self, high_level_task, file_names):
-        file_list_str = ', '.join(file_names)
+        file_list_str = ", ".join(file_names)
         return f"{high_level_task}. Involved files: {file_list_str}"
     
         '''
@@ -49,24 +49,28 @@ class SubroutineBuilder:
         # Each of these routines will correspond to a phase in the development process.
         # These will interact with reactManager to perform tasks.
         
-        print("FIND FILES ROUTINE")
-        file_names = self.find_files.find_files()
-        print("List of relevant files: ", file_names)
+        # print("FIND FILES ROUTINE")
+        # file_names_str = self.find_files.find_files()
+        file_names_str = "src/App.js, src/firebase.js, src/components/SignIn.js"
+        # file_names_str = "src/components/SignIn.js"
+        print("List of relevant files: ", file_names_str)
+        
+        file_names = file_names_str.split(", ")
         
         updated_task_description = self.append_files_to_task_description(self.high_level_task, file_names)
         
-        # for file in file_names:
-        #     print("STUB WRITING ROUTINE")
-        #     print("File: ", file)
-        #     print(self.stub_writing.stub_write(file, updated_task_description))
+        for file in file_names:
+            # print("STUB WRITING ROUTINE")
+            # print("File: ", file)
+            # print(self.stub_writing.stub_write(file, updated_task_description))
             
-        #     print("CODE WRITING ROUTINE")
-        #     print(self.code_writing.code_write(file, updated_task_description))
+            print("CODE WRITING ROUTINE")
+            print(self.code_writing.code_write(file, updated_task_description))
             
-        #     print("DEBUGGING ROUTINE")
-        #     print(self.debugging.debug(file, updated_task_description))
+            # print("DEBUGGING ROUTINE")
+            # print(self.debugging.debug(file, updated_task_description))
             
-        # print("DONE")
+        print("DONE")
         
     
     def init_subroutine_configs(self):
@@ -170,7 +174,7 @@ def main():
     # Entry point for the script.
     # Parse arguments and create an instance of SubroutineBuilder.
     # Start the routines for the development process.
-    subroutineBuilder = SubroutineBuilder("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", "subroutine-app", "Add firebase signin functionality to the specified app name. My google API key is _____.")
+    subroutineBuilder = SubroutineBuilder("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", "subroutine-app", "Add firebase signin functionality to the specified app name. My google API key is _____.")
     subroutineBuilder.perform_subroutines()
     
     # ReactAppManager = ReactAppManager("subroutine-app")

@@ -19,12 +19,13 @@ class FileFindRoutine:
 
         FILE_FIND_CLIENT_AUTO_REPLY = """
             Are you sure you have identified all the files relevant to the high level task? Reflect on the current list of files identified. Are there any additional files that might be relevant to our high-level task of '{high_level_task}'? 
-            If unsure, consider re-evaluating the directory or consulting the contents of the current files for further insights.
+            If unsure, consider re-evaluating the directory or consulting the contents of the current files for further insights. The final message in this chat should just 
+            be a list of relevant files without any other text. For example if the only file you identify as relevant is 'src/App.js', the last message in the chat should be 'src/App.js'.
         """
 
         self.find_client = UserProxyAgent(
             name="file_find_client",
-            max_consecutive_auto_reply=4,
+            max_consecutive_auto_reply=5,
             function_map=find_files_function_map,
             human_input_mode="NEVER",
             default_auto_reply=FILE_FIND_CLIENT_AUTO_REPLY,
@@ -54,6 +55,8 @@ class FileFindRoutine:
             the last message in the chat should be 'src/App.js, src/components/blah.js'. Sometime you may need to create a new file to complete the high-level task.
             If this is the case you can just list the additional file as a part of the list of relevant files. For example, if you need to create a file called
             'src/components/blah.js', you can just list 'src/components/blah.js' as a part of the list of relevant files. 
+            
+            The final output of this groupchat should be a list of relevant files. There should be no other text in the final message.
         """
         
         self.file_finder = AssistantAgent(
@@ -73,6 +76,8 @@ class FileFindRoutine:
             You are more so using the list_react_files function to check that the file finder agent is not missing any files. This 
             may require you to read the contents of the files to determine if they are relevant to the high-level task. You will have to ask
             the client to read the contents of the file for you. Same for the list_react_files function. You will have to ask the client to list the files.
+            
+            The last message in this chat should be a list of relevant files. There should be no other text in the final message.  
         """
         
         self.file_find_reviewer = AssistantAgent(
@@ -89,7 +94,7 @@ class FileFindRoutine:
 
         self.create_client = UserProxyAgent(
             name="file_create_client",
-            max_consecutive_auto_reply=3,
+            max_consecutive_auto_reply=5,
             function_map=find_files_function_map,
             human_input_mode="NEVER",
             default_auto_reply=FILE_CREATE_CLIENT_AUTO_REPLY,
@@ -108,10 +113,6 @@ class FileFindRoutine:
             You will have to tell the client the path, file name, and initial content of the new file and the client will create it for you. 
             
             Ensure that the path, file name, and initial content are appropriate and align with the project's standards and structure. 
-            The final output of this groupchat should be a list of relevant files. This should be the last message in the chat.
-            For example if the only file you identify as relevant is 'src/App.js', the last message in the chat should be 'src/App.js'.
-            If you identify another file in a subdirectory called 'src/components' with the name 'blah.js', the last message in the chat should be
-            'src/App.js, src/components/blah.js'. 
         """
         
         self.file_creator = AssistantAgent(
@@ -125,12 +126,11 @@ class FileFindRoutine:
             Ensure that the files created by the file creation agent are necessary and appropriately structured. 
             Verify that new files do not duplicate existing functionality and are named and placed correctly within the project's directory.
             If you think all the files listed thus far should be sufficient to complete a task, inform the file creator agent that the list is complete.
-            Make sure that the final output of this groupchat is a list of relevant files. This should be the last message in the chat.
         """
         
         self.file_create_reviewer = AssistantAgent(
             name="file_create_reviewer",
-            llm_config=self.file_contents_config,
+            llm_config=self.base_config,
             system_message=FILE_CREATE_REVIEWER_SYSTEM_MESSAGE
         )
     
@@ -153,6 +153,9 @@ class FileFindRoutine:
             Considering our high-level task of '{high_level_task}', identify and list all the relevant files in the React app directory. 
             Use the 'list_react_files' function to explore the directory structure and 'read_file' to inspect file contents when necessary.
             The final output of this groupchat should be a list of relevant files. This should be the last message in the chat.
+            Make sure that a comma separates each file path in the list. For example if the only file you identify as relevant is 'src/App.js', 
+            and 'src/components/blah.js', the last message in the chat should be 'src/App.js, src/components/blah.js'. 
+            Remember, 'src/App.js' is almost always relevant to any high-level task.
         """
         
         self.find_client.initiate_chat(
@@ -170,7 +173,8 @@ class FileFindRoutine:
         FILE_CREATE_PROMPT = """
             Based on the high-level task of '{high_level_task}' and the identified files: {files_found}, determine if there's a need to create new files. 
             If so, use the 'create_new_file' function to establish these files, specifying their path, name, and initial content.
-            The final output of this groupchat should be a list of relevant files. This should be the last message in the chat.
+            Remember, check to make sure all the identified files exist in the React app directory. If not, create them. Engage all 
+            3 agents in this groupchat to ensure that the files are created correctly.
         """
         
         self.create_client.initiate_chat(
@@ -178,7 +182,7 @@ class FileFindRoutine:
             message=FILE_CREATE_PROMPT.format(high_level_task=self.high_level_task, files_found=self.find_client.last_message()["content"])
         )
         
-        print("FileFindRoutine: Files found/created", self.create_client.last_message()["content"])
+        print("FileFindRoutine: Files found/created: ", self.create_client.last_message()["content"])
         
         # need to return the list of relevant file paths
         return self.find_client.last_message()["content"]

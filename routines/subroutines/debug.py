@@ -33,6 +33,15 @@ class DebugRoutine:
             Pay close attention to any parts that might be problematic or misaligned with the project's objectives. Your detailed review is crucial for successful debugging.
             Remember to split 'file_path' into the directory and file name. For instance, if 'file_path' is 'src/utils/helper.js',
             your read_file call should be with 'src/utils' as the directory and 'helper.js' as the file name.
+            
+            Remember as a reader, you are not responsible for writing the code. But because you know the other relevant files, you can provide guidance on what debugging are needed.
+            To this end, you can consider reading the other files and provide guidance for the debug writer on what the contents of the other relevant files are so the debug writer can
+            accurately write the code. 
+            
+            You can also do some planning for the debugging process and provide additional filepaths to the debug writer to edit based on the plan. 
+            This would only be the case if you think crucial pieces of the code are missing or need to be changed in order to meet the project's objectives.
+            Refrain from doing this as we want to focus on one file at a time, but you can do this if you feel it is necessary. You should communicate with the reviwer before instructing 
+            the debug writer to edit files outside of the current file we are working on.
         """
 
         
@@ -62,6 +71,13 @@ class DebugRoutine:
             Use the 'read_file' function to access the updated code and provide feedback or further suggestions to refine the code as needed.
             Remember to split 'file_path' into the directory and file name. For instance, if 'file_path' is 'src/utils/helper.js',
             your read_file call should be with 'src/utils' as the directory and 'helper.js' as the file name.
+            
+            Make sure that the written
+            code does not conflate and halluciate on the contents of the other relevant files. To this end, you may want to look into the contents of the other files. Provide suggestions to the stub_writer
+            to ensure that the stubs are accurate and relevant to the high-level task. You are working with the code reader to make sure all necessary contents have been properly defined in all the files, but make sure 
+            that the writer writes the code only to the file we are working on.
+            
+            If you think all the files are good to go, reply with 'done'. Tell the other agents to do the same.
         """
 
 
@@ -71,7 +87,7 @@ class DebugRoutine:
             system_message=DEBUG_REVIEW_AGENT_SYSTEM_MESSAGE
         )
     
-    def debug(self, file_path):
+    def debug(self, file_path, high_level_task):
         # Logic for debugging the written code
         # Use the agents to read file contents, identify and fix errors, and review the debugged code.
         
@@ -89,7 +105,7 @@ class DebugRoutine:
         
         self.client.initiate_chat(
             manager,
-            message=DEBUG_PROMPT.format(high_level_task=self.high_level_task, file_path=file_path)
+            message=DEBUG_PROMPT.format(high_level_task=high_level_task, file_path=file_path)
         )
         
         # Return success message or any relevant output
