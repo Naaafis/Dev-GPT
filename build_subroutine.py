@@ -182,3 +182,15 @@ def main():
 
 if __name__ == "__main__":
     main()
+
+
+# FUTURE PLAN: CREATE SELENIUM WEBDRIVER TO READ DOCUMENTATIONS WHILE WEB BROWSING AGENT FINDS RELEVANT WEBSITES
+# 1 agent to read documentation using selenium webdriver
+# 1 agent to find relevant websites using web browsing
+# 1 agent to review the documentation and websites found
+# 1 agent to modify plan based on the documentation and websites found
+
+# This agent can literally go in any of the routines. It can be used to find documentation for the high_level_task.
+# It can be used to install the proper libraries for the high_level_task.
+# It can be used to identify proper file structure for the high_level_task.
+# It can be used to identify proper code structure for the high_level_task for each of the files.

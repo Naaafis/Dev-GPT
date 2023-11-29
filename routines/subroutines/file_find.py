@@ -86,10 +86,15 @@ class FileFindRoutine:
             system_message=FILE_CONTENTS_REVIEWER_SYSTEM_MESSAGE.format(high_level_task=self.high_level_task)
         )
         
+        # Everytime a new file is discvered, we have an agnet call a function and write this new file to the list of relevant files
+        # We can just write this in a relevant_files.txt file and have the agent read this file to get the list of relevant files 
+        # For the next chat...
+        
         FILE_CREATE_CLIENT_AUTO_REPLY = """
             Are you sure all relevant files have been created? Reflect on the current list of files identified. 
             Do they all exist in the React app directory? 
             If unsure, consider re-evaluating the directory or consulting the contents of the sub-directories for further insights.
+            Make sure that all the relevant files have been written to a 
         """
 
         self.create_client = UserProxyAgent(
