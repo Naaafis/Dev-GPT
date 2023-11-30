@@ -27,17 +27,16 @@ class SubroutineBuilder:
 
         # Initialize config and function maps for each routine.
         self.init_subroutine_configs()
-        self.find_files = FileFindRoutine(self.base_config, high_level_task, self.file_contents_config, self.file_creating_config, self.find_files_function_map)
+        self.find_files = FileFindRoutine(high_level_task, self.file_contents_config, self.file_creating_config, self.find_files_function_map)
         self.stub_writing = StubWriteRoutine(self.base_config, self.stub_reading_config, self.stub_writing_config, self.stub_writing_function_map)
         self.code_writing = CodeWriteRoutine(self.base_config, self.code_reading_config, self.code_writing_config, self.code_writing_function_map)
         self.debugging = DebugRoutine(self.base_config, self.debugging_reading_config, self.debugging_config, self.debugging_function_map)
         
     def append_files_to_task_description(self, high_level_task, file_names):
-        file_list_str = ", ".join(file_names)
-        return f"{high_level_task}. Involved files: {file_list_str}"
+        return f"{high_level_task}. Involved files: {file_names}"
     
         '''
-        # Example usage:
+        # Example usage: 
         high_level_task = "Create a service worker component"
         file_names = ["src/App.js", "src/components/Component.js", "src/utils/helpers.js"]
         updated_task_description = append_files_to_task_description(high_level_task, file_names)
@@ -49,26 +48,46 @@ class SubroutineBuilder:
         # Each of these routines will correspond to a phase in the development process.
         # These will interact with reactManager to perform tasks.
         
-        # print("FIND FILES ROUTINE")
-        # file_names_str = self.find_files.find_files()
-        file_names_str = "src/App.js, src/firebase.js, src/components/SignIn.js"
-        # file_names_str = "src/components/SignIn.js"
+        # create the relecant_files.txt to keep track of the files that are relevant to the high_level_task
+        success = self.react_manager.create_new_file("", "relevant_files.txt")
+        if not success:
+            print("Error creating relevant_files.txt")
+            return
+        
+        print("FIND FILES ROUTINE")
+        status = self.find_files.find_files()
+        if not status:
+            print("Error finding files")
+            return
+        
         print("List of relevant files: ", file_names_str)
         
-        file_names = file_names_str.split(", ")
+        # read in files names from relevant_files.txt
+        file_names_str = self.react_manager.read_file("", "relevant_files.txt")
         
-        updated_task_description = self.append_files_to_task_description(self.high_level_task, file_names)
+        if not file_names_str:
+            print("Error reading relevant_files.txt")
+            return
+        
+        # make sure that file_names_str is a string with comma separated file names
+        # Check if file_names_str contains multiple file paths
+        if ',' in file_names_str:
+            file_names = file_names_str.split(", ")
+        else:
+            file_names = [file_names_str]  # Wrap the single file path in a list
+        
+        updated_task_description = self.append_files_to_task_description(self.high_level_task, file_names_str)
         
         for file in file_names:
-            # print("STUB WRITING ROUTINE")
-            # print("File: ", file)
-            # print(self.stub_writing.stub_write(file, updated_task_description))
+            print("STUB WRITING ROUTINE")
+            print("File: ", file)
+            print(self.stub_writing.stub_write(file, updated_task_description))
             
             print("CODE WRITING ROUTINE")
             print(self.code_writing.code_write(file, updated_task_description))
             
-            # print("DEBUGGING ROUTINE")
-            # print(self.debugging.debug(file, updated_task_description))
+            print("DEBUGGING ROUTINE")
+            print(self.debugging.debug(file, updated_task_description))
             
         print("DONE")
         
