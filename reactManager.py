@@ -1,6 +1,7 @@
 from controller import Controller
 import os
 import subprocess
+import time
 import sys
 import json
 import ast
@@ -18,54 +19,46 @@ class ReactAppManager:
         '''
         
         self.root_directory = self.controller.print_working_directory()
-        # self.setup_react_directory()
+        # self.create_react_app()
+        #self.setup_react_directory()
 
     def setup_react_directory(self):
-        """Configures React app directory"""
-        # if not self.check_node_version():
-        #     print("Please install node")
-        #     return
-
-        # if not self.check_react_version():
-        #     print("Please install npx")
-        #     return
-
-        """Create a new React app."""
-        cmd = f"npx create-react-app {self.react_app_name}"
-        # print(self.controller.execute_command(cmd))
-        subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, cwd=os.getcwd(), shell=True)
         """Enforced file structure"""
-        # src_dir = os.path.join(self.get_react_app_directory(), "/src")
-        # self.create_directory(src_dir, "/assets")
-        # self.create_directory(src_dir, "/components")
-        # self.create_directory(src_dir, "/hooks")
-        # self.create_directory(src_dir, "/context")
-        # self.create_directory(src_dir, "/data")
-        # self.create_directory(src_dir, "/pages")
-        # self.create_directory(src_dir, "/util")
+        src_dir = os.path.join(self.get_react_app_directory(), "/src")
+        self.create_directory(src_dir, "/assets")
+        self.create_directory(src_dir, "/components")
+        self.create_directory(src_dir, "/hooks")
+        self.create_directory(src_dir, "/context")
+        self.create_directory(src_dir, "/data")
+        self.create_directory(src_dir, "/pages")
+        self.create_directory(src_dir, "/util")
 
-    def exec(self):
+    def exec_tests(self):
         # Run the Jest tests
         os.chdir(self.get_react_app_directory())
         try:
-            result = subprocess.run("npm test -- --json", check=True, capture_output=True, cwd=self.get_react_app_directory(), shell=True)
-            pattern = r'"numFailedTests":(\d+),'
-            match = re.search(pattern, result.stdout.strip().decode('utf-8'))
-            num_tests_failed = int(match.group(1))
+            process = subprocess.Popen("npm test -- --json --watchAll=false", stdout=subprocess.PIPE, stderr=subprocess.PIPE, cwd=self.get_react_app_directory(), shell=True)
+            output, error = process.communicate()
+            match = re.search(r'"numFailedTests":(\d+),', output.strip().decode('utf-8'))
+            num_tests_failed = 0
+            if match:
+                num_tests_failed = int(match.group(1))
         except subprocess.CalledProcessError as e:
-            return ("An error occurred while running the tests.")
+            return ("An error occurred while running the tests." + str(e))
         
-        return num_tests_failed, result.stdout
+        return num_tests_failed, output.strip().decode('utf-8')
     
     def lint(self):
         # Run the eslint
         os.chdir(self.get_react_app_directory())
         try:
             result = subprocess.run("npx eslint src", stdout=subprocess.PIPE, stderr=subprocess.PIPE, cwd=self.get_react_app_directory(), shell=True)
-            num_tests_failed = result.stdout.strip().decode('utf-8').count("error")
+            match = re.search(r'(\d+) problems', result.stdout.strip().decode('utf-8'))
+            num_tests_failed = 0
+            if match:
+                num_tests_failed = int(match.group(1))
         except subprocess.CalledProcessError as e:
-            print(e)
-            return ("An error occurred while running the tests.")
+            return ("An error occurred while linting.")
         
         return num_tests_failed, result.stdout
 
@@ -249,14 +242,10 @@ class ReactAppManager:
         cmd = f"npm install {' '.join(packages)}"
         return self.controller.execute_command(cmd)
     
-    def create_react_app(self, app_name):
+    def create_react_app(self):
         """Create a new React app."""
-        cmd = f"npx create-react-app {app_name}"
-        output = self.controller.execute_command(cmd)
-        if "success" in output['message'].lower():
-            return f"React app {app_name} created successfully!"
-        else:
-            return output
+        cmd = f"npx create-react-app {self.react_app_name}"
+        subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, cwd=os.getcwd(), shell=True)
         
     def npm_start(self):
         """Start the React app using npm and check if it compiles successfully."""
@@ -555,8 +544,8 @@ class ReactAppManager:
 #         print(manager.read_file(directory, filename))
 
 def main():
-    manager = ReactAppManager()
-    print(manager.exec())
+    manager = ReactAppManager(app_name='new-app')
+    print(manager.exec_tests())
 
 if __name__ == "__main__":
     main()

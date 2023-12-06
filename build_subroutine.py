@@ -193,7 +193,7 @@ def main():
     # Entry point for the script.
     # Parse arguments and create an instance of SubroutineBuilder.
     # Start the routines for the development process.
-    subroutineBuilder = SubroutineBuilder("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", "new-app", "Recreate google maps with just the api.")
+    subroutineBuilder = SubroutineBuilder("", "new-app", "Recreate google maps with just the api.")
     # subroutineBuilder.perform_subroutines()
     
     # ReactAppManager = ReactAppManager("subroutine-app")
