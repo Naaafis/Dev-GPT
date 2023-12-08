@@ -13,10 +13,18 @@ const ChatBox = () => {
       timestamp: new Date().toISOString(),
       imageUrl
     };
-    setMessages([...messages, newMessage]);
+    const updatedMessages = [...messages, newMessage];
+    setMessages(updatedMessages);
+
+    localStorage.setItem('chatMessages', JSON.stringify(updatedMessages));
   };
 
   useEffect(() => {
+    // localStorage.removeItem('chatMessages');
+    const savedMessages = localStorage.getItem('chatMessages');
+    if (savedMessages) {
+      setMessages(JSON.parse(savedMessages));
+    }
     let intervalId;
 
     if (generatingMsg) {
