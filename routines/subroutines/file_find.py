@@ -9,9 +9,11 @@ class FileFindRoutine:
         Sample high_level_task: ['create a service worker component']
         Sample function call: found_files = FileFindRoutine(self.base_config, app_directory, high_level_task, self.file_contents_config, self.file_creating_config, self.find_files_function_map)
     """
-    def __init__(self, high_level_task, file_contents_config, file_creating_config, find_files_function_map):
+    def __init__(self, base_config, high_level_task, file_contents_config, file_writing_config, file_creating_config, find_files_function_map):
+        self.base_config = base_config
         self.high_level_task = high_level_task
         self.file_contents_config = file_contents_config
+        self.file_writing_config = file_writing_config
         self.file_creating_config = file_creating_config
         self.find_files_function_map = find_files_function_map
         self.termination_msg = lambda x: isinstance(x, dict) and "TERMINATE" == str(x.get("content", ""))[-9:].upper()
@@ -27,7 +29,7 @@ class FileFindRoutine:
         self.find_client = UserProxyAgent(
             name="file_find_client",
             is_termination_msg=self.termination_msg,
-            max_consecutive_auto_reply=5,
+            max_consecutive_auto_reply=15,
             function_map=find_files_function_map,
             human_input_mode="NEVER",
             default_auto_reply=FILE_FIND_CLIENT_AUTO_REPLY,
@@ -52,14 +54,12 @@ class FileFindRoutine:
             Similarly, you will have to tell the client the path of the directory you want to list and the client will list the files for you.
             
             If you identify a relevant file for the task, remember to add its full path to the list of relevant files.
-            This should be the communicated to the relevant_files_creator agent. The relevant_files_creator agent will update a file called "relevant_files.txt" with the list of relevant files.
-            For example if the only file you identify as relevant is 'src/App.js', the relevant_files.txt file should contain 'src/App.js'. If you identify another file in a subdirectory called 'src/components' with the name 'blah.js',
-            the relevant_files.txt file should contain 'src/App.js,src/components/blah.js'. The relevant_files_creator agent will be responsible for updating the relevant_files.txt file.
+            For example if the only file you identify as relevant is 'src/App.js', the relevant_files should contain 'src/App.js'. If you identify another file in a subdirectory called 'src/components' with the name 'blah.js',
+            the relevant_files file should contain 'src/App.js,src/components/blah.js'. 
             
             Sometime you may need to create a new file to complete the high-level task.
             If this is the case you can just list the additional file as a part of the list of relevant files. For example, if you need to create a file called
             'src/components/blah.js', you can just list 'src/components/blah.js' as a part of the list of relevant files. 
-            Tell the relevant_files_creator agent to update the relevant_files.txt file with the new file. 
             
             Take a deep breath, and good luck!
         """
@@ -84,18 +84,10 @@ class FileFindRoutine:
             
             You are also ensuring that files are being created in the proper subdirectories. You wouldnt want to create a .css file in the src/components directory.
             You would want to create it in the src/style directory. You can use the list_react_files function to check the directory structure. 
-            so if you need to create a new file called blah.css, you would want to make sure that it is being included in the relevant_files.txt file as src/style/blah.css.
+            so if you need to create a new file called blah.css, you would want to make sure that it is being included in the relevant_files file as src/style/blah.css.
             Notice how the path is included in the file name. 
             
-            The task of this chat is to create a file called 'relevant_files.txt' that will contain the list of relevant files.
-            The relevant_files_creator will update the relevant_files.txt file. Make sure to query the relevant_files_creator to ensure that the
-            file has been updated. You can also check the contents of the file yourself by asking the client to read the relevant_files.txt file.
-            You would feed the client an empty string for the path and 'relevant_files.txt' for the file name. The client will read the file for you.
-            Make sure this resembles a comma seperated python string. For example, if the only file you identify as relevant is 'src/App.js', the
-            contents should should be 'src/App.js'. If you identify another relevant file in a subdirectory called 'src/components' with the name 'blah.js',
-            the contents of relevant_files.txt should be 'src/App.js,src/components/blah.js'. If you think a new file needs to be added to the list,
-            make sure the relevant_files.txt contains the new file. If you think a file needs to be removed from the list, make sure the relevant_files.txt
-            does not contain the file. 
+            The task of this chat is to come up with a list of relevant files.
             
             Take a deep breath, and good luck!
         """
@@ -111,8 +103,8 @@ class FileFindRoutine:
         # For the next chat...
         
         RELEVANT_FILES_CREATOR_SYSTEM_MESSAGE = """
-            You are tasked with creating a file called 'relevant_files.txt' that will contain the list of relevant files.
-            This file should be updated every time a new file is identified as relevant to the high-level task of '{high_level_task}'.
+            You are tasked with writing to a file called 'relevant_files.txt' that will contain the list of relevant files.
+            This file should be updated every time a new file is identified as relevant to the high-level task.
             You must ensure that the contents of this file is formatted as a comma seperated python string. For example, if the only file identified as relevant is 'src/App.js', the
             contents of the file should be 'src/App.js'. If another file in a subdirectory called 'src/components' with the name 'blah.js' is identified as relevant, 
             the contents of the file should be 'src/App.js,src/components/blah.js'. 
@@ -126,7 +118,7 @@ class FileFindRoutine:
         
         self.relevant_files_creator = AssistantAgent(
             name="relevant_files_creator",
-            llm_config=self.file_creating_config,
+            llm_config=self.file_writing_config,
             system_message=RELEVANT_FILES_CREATOR_SYSTEM_MESSAGE.format(high_level_task=self.high_level_task)
         )
         
@@ -253,9 +245,7 @@ class FileFindRoutine:
             contents of the file should be 'src/App.js'. If another file in a subdirectory called 'src/components' with the name 'blah.js' is identified as relevant,
             the contents of the file should be 'src/App.js,src/components/blah.js'.
             
-            Remember, 'src/App.js' is almost always relevant to any high-level task. 
-            The relevant_files_creator should always be updating a file called "relevant_files.txt" with the list of relevant files that can be read in 
-            as a python string.
+            Remember, 'src/App.js' is almost always relevant to any high-level task.
         """
         
         self.find_client.initiate_chat(
