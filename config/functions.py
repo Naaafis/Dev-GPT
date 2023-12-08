@@ -376,7 +376,7 @@ file_writing_functions = [
     }
 ]
 
-flie_creating_functions = [
+file_creating_functions = [
 
     {
         "name": "create_new_file",

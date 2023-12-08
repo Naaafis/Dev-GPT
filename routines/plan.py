@@ -18,7 +18,6 @@ class PlanRoutine:
             function_map=plan_function_map,
             human_input_mode="NEVER",
             default_auto_reply=PLAN_CLIENT_AUTO_REPLY,
-            code_execution_config={"work_dir": "API-Galore"},
         )
 
         self.executor = AssistantAgent(
