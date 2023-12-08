@@ -1,1 +1,1 @@
-./saves/user_prompt.txt
+./saves/user_input.txt

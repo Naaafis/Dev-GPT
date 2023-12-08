@@ -13,10 +13,18 @@ const ChatBox = () => {
       timestamp: new Date().toISOString(),
       imageUrl
     };
-    setMessages([...messages, newMessage]);
+    const updatedMessages = [...messages, newMessage];
+    setMessages(updatedMessages);
+
+    localStorage.setItem('chatMessages', JSON.stringify(updatedMessages));
   };
 
   useEffect(() => {
+    // localStorage.removeItem('chatMessages');
+    const savedMessages = localStorage.getItem('chatMessages');
+    if (savedMessages) {
+      setMessages(JSON.parse(savedMessages));
+    }
     let intervalId;
 
     if (generatingMsg) {
@@ -35,9 +43,6 @@ const ChatBox = () => {
     if (!message) {
       alert('Please enter your request');
       return;
-    }
-    const newMessage = {
-      content: message,
     };
     // Add the user's text message to the chat
     addMessage(message);
@@ -66,13 +71,9 @@ const ChatBox = () => {
     // Check if the response contains an image URL
     if (responseData && responseData.message) {
         // Extract the image URL from the response
-        const imageUrl = responseData.message;
-
-        // Add a new message with the image URL
+        const imageUrl = `/images/${responseData.message}`;
         addMessage(message, imageUrl);
     }
-     
-    console.log('Response from backend:', responseData);
     } catch (error) {
       console.error('Error submitting message:', error);
     }
