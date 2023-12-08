@@ -222,7 +222,7 @@ class FileFindRoutine:
         )
     
     
-    def find_files(self):
+    def find_files(self, task):
         # Logic to find files based on the high_level_task
         # Use the agents to list directory contents, read file contents, and create new files as needed.
         # Return the list of relevant file paths.
@@ -250,7 +250,7 @@ class FileFindRoutine:
         
         self.find_client.initiate_chat(
             manager,
-            message=FILE_FIND_PROMPT.format(high_level_task=self.high_level_task)
+            message=FILE_FIND_PROMPT.format(high_level_task=task)
         )
         
         # need to create the groupchat for creating files

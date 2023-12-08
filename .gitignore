@@ -162,4 +162,5 @@ cython_debug/
 #.idea/
 
 openai-api-key.py
-ReactAPIDocs
+ReactAPIDocs/
+new-app/

@@ -31,6 +31,8 @@ class SubroutineBuilder:
         self.stub_writing = StubWriteRoutine(self.base_config, self.stub_reading_config, self.stub_writing_config, self.stub_writing_function_map)
         self.code_writing = CodeWriteRoutine(self.base_config, self.code_reading_config, self.code_writing_config, self.code_writing_function_map)
         self.debugging = DebugRoutine(self.base_config, self.debugging_reading_config, self.debugging_config, self.debugging_function_map)
+
+        self.perform_subroutines()
         
     def append_files_to_task_description(self, high_level_task, file_names):
         return f"{high_level_task}. Involved files: {file_names}"
@@ -48,46 +50,69 @@ class SubroutineBuilder:
         # Each of these routines will correspond to a phase in the development process.
         # These will interact with reactManager to perform tasks.
         
-        # create the relecant_files.txt to keep track of the files that are relevant to the high_level_task
-        success = self.react_manager.create_new_file("", "relevant_files.txt", "")
-        if not success:
-            print("Error creating relevant_files.txt")
-            return
         
-        print("FIND FILES ROUTINE")
-        status = self.find_files.find_files()
-        if not status:
-            print("Error finding files")
-            return
-        
-        print("List of relevant files: ", file_names_str)
-        
-        # read in files names from relevant_files.txt
-        file_names_str = self.react_manager.read_file("", "relevant_files.txt")
-        
-        if not file_names_str:
-            print("Error reading relevant_files.txt")
-            return
-        
-        # make sure that file_names_str is a string with comma separated file names
-        # Check if file_names_str contains multiple file paths
-        if ',' in file_names_str:
-            file_names = file_names_str.split(", ")
-        else:
-            file_names = [file_names_str]  # Wrap the single file path in a list
-        
-        updated_task_description = self.append_files_to_task_description(self.high_level_task, file_names_str)
-        
-        for file in file_names:
-            print("STUB WRITING ROUTINE")
-            print("File: ", file)
-            print(self.stub_writing.stub_write(file, updated_task_description))
+        # self.planner.init_plan(self.user_prompt)
+        # self.installer.find_dependencies(self.react_manager.read_file("", "plan.txt"))
+        plan_items = self.react_manager.get_plan_items()
+        if not plan_items:
+            print("PLAN ROUTINE")
+            self.planner.init_plan(self.user_prompt)
+            plan_items = self.react_manager.get_plan_items()
+
+        print("CODE ROUTINE")
+        #for t in range(len(plan_items)):
+        task_list = plan_items[1]
+        full_task = "\n".join(task_list)
+        for step in range(1, len(task_list)):
+          
+            # create the relecant_files.txt to keep track of the files that are relevant to the high_level_task
+            success = self.react_manager.create_new_file("", "relevant_files.txt", "")
+            if not success:
+                print("Error creating relevant_files.txt")
+                return
+         
+            print("FIND FILES ROUTINE")
+            print("FIND FILES ROUTINE")
+            status = self.find_files.find_files()
+            if not status:
+                print("Error finding files")
+                return
+
+            # read in files names from relevant_files.txt
+            file_names_str = self.react_manager.read_file("", "relevant_files.txt")
+
+            if not file_names_str:
+                print("Error reading relevant_files.txt")
+                return
             
-            print("CODE WRITING ROUTINE")
-            print(self.code_writing.code_write(file, updated_task_description))
+            # make sure that file_names_str is a string with comma separated file names
+            # Check if file_names_str contains multiple file paths
+            if ',' in file_names_str:
+                file_names = file_names_str.split(", ")
+            else:
+                file_names = [file_names_str]  # Wrap the single file path in a list
+
+            updated_task_description = self.append_files_to_task_description(self.high_level_task, file_names_str)
             
-            print("DEBUGGING ROUTINE")
-            print(self.debugging.debug(file, updated_task_description))
+            for file in file_names:
+                print("File: ", file)
+                print("STUB WRITING ROUTINE")
+                print(self.stub_writing.stub_write(file, updated_task_description))
+                
+                print("CODE WRITING ROUTINE")
+                print(self.code_writing.code_write(file, updated_task_description))
+
+        print("LINT")
+        numFailed, output = self.react_manager.lint()
+        while(numFailed):
+            self.debugging.debug(full_task, output)
+            numFailed, output = self.react_manager.lint()
+
+        print("EXEC TEST")
+        numFailed, output = self.react_manager.exec_tests()
+        while(numFailed):
+            self.debugging.debug(full_task, output)
+            numFailed, output = self.react_manager.exec_tests()
             
         print("DONE")
         
@@ -111,7 +136,7 @@ class SubroutineBuilder:
         }
         
         self.file_creating_config = {
-            "functions": flie_creating_functions,
+            "functions": file_creating_functions,
             "request_timeout": 600,
             "seed": 42,
             "config_list": self.config_list,
@@ -202,8 +227,10 @@ def main():
     # Entry point for the script.
     # Parse arguments and create an instance of SubroutineBuilder.
     # Start the routines for the development process.
+
     subroutineBuilder = SubroutineBuilder("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", "google-maps-api-app", "Make sure this app is using the Google Maps API to display a map and find routes to locations. provided by the user in the search bar. The map should be centered on the user's current location and provide a route to the location provided in the search bar when the user clicks the search button. My google maps API key is: AIzaSyDRq8DvKx9_E-NpS-C5N3dXDT_A5aBbs-4")
     subroutineBuilder.perform_subroutines()
+
     
     # ReactAppManager = ReactAppManager("subroutine-app")
     # list_of_files = ReactAppManager.get_react_app_directory()

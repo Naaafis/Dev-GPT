@@ -1,6 +1,8 @@
 from autogen import *
 from config.functions import *
 from config.prompts import *
+import subprocess
+import json
 
 class DebugRoutine:
     """
@@ -87,7 +89,8 @@ class DebugRoutine:
             system_message=DEBUG_REVIEW_AGENT_SYSTEM_MESSAGE
         )
     
-    def debug(self, file_path, high_level_task):
+
+    def debug(self, high_level_task, output):
         # Logic for debugging the written code
         # Use the agents to read file contents, identify and fix errors, and review the debugged code.
         
@@ -98,15 +101,18 @@ class DebugRoutine:
         manager = GroupChatManager(groupchat=self.debug_groupchat, llm_config=self.base_config)
         
         DEBUG_PROMPT = """
-            Our current focus is on debugging '{file_path}' as part of our high-level task: '{high_level_task}'. Review the code for any bugs or issues, and ensure it aligns with our project goals. 
-            Address any identified issues to enhance the overall quality and functionality of the code.
+            Our current focus is to resolve any issues with '{high_level_task}'. Review the code for any bugs or issues, and ensure it aligns with our project goals. 
+            Address any identified issues to enhance the overall quality and functionality of the code. Specifically, address these issues: {output}.
         """
 
         
         self.client.initiate_chat(
             manager,
-            message=DEBUG_PROMPT.format(high_level_task=high_level_task, file_path=file_path)
+
+            message=DEBUG_PROMPT.format(high_level_task=high_level_task, output=output)
         )
         
         # Return success message or any relevant output
-        return "Debugging completed successfully for " + file_path
+        return
+    
+
