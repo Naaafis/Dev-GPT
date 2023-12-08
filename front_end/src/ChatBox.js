@@ -66,13 +66,9 @@ const ChatBox = () => {
     // Check if the response contains an image URL
     if (responseData && responseData.message) {
         // Extract the image URL from the response
-        const imageUrl = responseData.message;
-
-        // Add a new message with the image URL
+        const imageUrl = `/images/${responseData.message}`;
         addMessage(message, imageUrl);
     }
-     
-    console.log('Response from backend:', responseData);
     } catch (error) {
       console.error('Error submitting message:', error);
     }

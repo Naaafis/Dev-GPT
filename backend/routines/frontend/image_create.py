@@ -144,7 +144,7 @@ class DALLEAgent(ConversableAgent):
     
 
 class DalleCreator(AssistantAgent):
-    def __init__(self, files, imgcreate_read_config, imgcreate_write_config, imgcreate_prompt_write_config, n_iters=3, **kwargs):
+    def __init__(self, files, imgcreate_read_config, imgcreate_write_config, imgcreate_prompt_write_config, n_iters=2, **kwargs):
         """
         Initializes a DalleCreator instance.
         
@@ -226,14 +226,14 @@ class DalleCreator(AssistantAgent):
         for i in range(self._n_iters):
             # Downsample the image s.t. GPT-4V can take
             img = extract_img(self.dalle)
-            img.save(f"./frontend/saves/design.png")
+            img.save("./front_end/saves/design.png")
             #img.save(f"betterresult{i}.png")
             smaller_image = img.resize((128, 128), Image.Resampling.LANCZOS)
             #smaller_image.save(f"result{i}.png")
             
 
             self.msg_to_critics = f"""USER PROMPT: {img_prompt}.
-            GENERATED IMAGE <img ./frontend/saves/design.png>.
+            GENERATED IMAGE <img ./front_end/saves/design.png>.
             
             Follow your system instruction to do the work and give the result in the following guideline.
             
@@ -258,7 +258,7 @@ class DalleCreator(AssistantAgent):
             
             
             self.msg_to_element = f"""USER PROMPT: {img_prompt}.
-            GENERATED IMAGE <img ./frontend/saves/design.png>.
+            GENERATED IMAGE <img ./front_end/saves/design.png>.
             
             Follow your system instruction to do the work and give the result in the following guideline.
             
@@ -269,22 +269,23 @@ class DalleCreator(AssistantAgent):
                            request_reply=True)
             elements = self._oai_messages[self.elements_inspector][-1]["content"]
             #print("ELEMENTS: " + elements)
-            element_file='./frontend/saves/web_elements.txt' 
+            element_file='./front_end/saves/web_elements.txt' 
             with open(element_file, 'w') as filetowrite:
                  filetowrite.write(elements)
             
-            rework_file='./frontend/saves/user_prompt.txt' 
+            rework_file='./front_end/saves/user_prompt.txt' 
             with open(rework_file, 'w') as filetowrite:
                filetowrite.write(img_prompt)
             #self.send(message=img_prompt, recipient=self.prompt_updater, request_reply=True)
 
         feedback_reset = ""
-        feedback_file='./frontend/saves/user_feedback.txt' 
+        feedback_file='./front_end/saves/user_feedback.txt' 
         with open(feedback_file, 'w') as filetowrite:
             filetowrite.write(feedback_reset)
-        img.save(f"./frontend/saves/design.png")
+        img.save(f"./front_end/saves/design.png")
+        img.save(f"./front_end/public/images/design.png")
         #self.react_manager.create_new_file("./saves/", "design.png", result1.png)
-        return True, "result.jpg"
+        return True, "design.png"
     
 
 class ImageCreateRoutine:

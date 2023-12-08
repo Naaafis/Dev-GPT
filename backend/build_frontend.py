@@ -70,7 +70,7 @@ class FrontendBuilder:
             
             #if design_status == "satisfied"
             #PASS TO NAFIS STUFF
-        print("DONE")
+        #print("DONE")
         
     
     def init_frontend_configs(self):
@@ -160,7 +160,7 @@ def main():
     # Entry point for the script.
     # Parse arguments and create an instance of FrontendBuilder.
     # Start the routines for the development process.
-    frontendBuilder = FrontendBuilder("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", "frontend", "Convert my web design prompt into an image")
+    frontendBuilder = FrontendBuilder("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", "front_end", "Convert my web design prompt into an image")
     frontendBuilder.perform_frontend()
     
     # ReactAppManager = ReactAppManager("subroutine-app")
