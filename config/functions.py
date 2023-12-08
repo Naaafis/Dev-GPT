@@ -350,10 +350,37 @@ file_contents_functions = [
     }
 ]
 
-file_creating_functions = [
+
+file_writing_functions = [
+    {
+        "name": "write_to_file",
+        "description": "Write to a file in the React app directory. This is used to write relevant files into the file.",
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "file_path": {
+                    "type": "string",
+                    "description": "Leave as empty string, as the file should be created in the root of the React app directory.",
+                },
+                "file_name": {
+                    "type": "string",
+                    "description": "Name of the file where new code will be written. This should be relevant_files.txt",
+                },
+                "content": {
+                    "type": "string",
+                    "description": "This should be a comma separated string of all the relevant files. There should be no spaces between the commas.",
+                }
+            },
+            "required": ["file_path", "file_name", "content"]
+        },
+    }
+]
+
+flie_creating_functions = [
+
     {
         "name": "create_new_file",
-        "description": "Create a new file within the React app if no relevant file is found. This is used when adding new features or components.",
+        "description": "Create a new file within the React app if no relevant file is found. This is used when adding new features or components. Could also be used to create txt files",
         "parameters": {
             "type": "object",
             "properties": {

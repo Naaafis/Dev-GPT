@@ -21,7 +21,7 @@ class CodeWriteRoutine:
 
         self.client = UserProxyAgent(
             name="client",
-            max_consecutive_auto_reply=3,
+            max_consecutive_auto_reply=4,
             function_map=code_writing_function_map,
             human_input_mode="NEVER",
             default_auto_reply=CODE_WRITE_CLIENT_AUTO_REPLY,
@@ -36,6 +36,11 @@ class CodeWriteRoutine:
             To use the function properly, you will have to split the given 'file_path' into the directory and file name. This will 
             be the input argued for the 'read_file' function. For instance, if 'file_path' is 'src/utils/helper.js', 
             your read_file call should be with 'src/utils' as the directory and 'helper.js' as the file name. 
+            
+            Remember as a code reader, you are not responsible for writing the code. But because you know the other relevant files, you can provide guidance on what code are needed.
+            To this end, you can consider reading the other files and provide guidance for the code writer on what the contents of the other relevant files are so the code writer can
+            accurately write the code. Additionally, you can provide guidance based on the stubs present in the file we are working on. You can of course also do the same for the stubs
+            in the other relevant files.  
         """
         
         self.code_reader = AssistantAgent(
@@ -48,10 +53,13 @@ class CodeWriteRoutine:
             Your primary task is to develop functional and efficient code based on the stubs and current implementation in the file we are focusing on. 
             Apply your expertise to write code that addresses the requirements and objectives outlined in our group chat. 
             Use the 'write_to_file' function for updating the code, ensuring it is clear, maintainable, and adheres to the project's standards.
+            
             To use the function properly, you will have to split the given 'file_path' into the directory and file name. This will
             be the input argued for the 'write_to_file' function. For instance, if 'file_path' is 'src/utils/helper.js',
             your write_to_file call should be with 'src/utils' as the directory and 'helper.js' as the file name. You will 
             have to provide the content to be written to the file as the third argument to the function.
+            
+            When given suggestions from the code reader, you should adjust the contents of the code file accordingly. 
         """
 
         self.code_writer = AssistantAgent(
@@ -66,6 +74,13 @@ class CodeWriteRoutine:
             To use the function properly, you will have to split the given 'file_path' into the directory and file name. This will
             be the input argued for the 'read_file' function. For instance, if 'file_path' is 'src/utils/helper.js', 
             your read_file call should be with 'src/utils' as the directory and 'helper.js' as the file name.
+            
+            Make sure that the written
+            code does not conflate and halluciate on the contents of the other relevant files. To this end, you may want to look into the contents of the other files. Provide suggestions to the stub_writer
+            to ensure that the stubs are accurate and relevant to the high-level task. You are working with the code reader to make sure all necessary contents have been properly defined in all the files, but make sure 
+            that the writer writes the code only to the file we are working on.
+            
+            If you believe the code is complete, reply with 'done'. Tell the other agents to do the same.
         """
 
         self.code_reviewer = AssistantAgent(

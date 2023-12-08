@@ -27,7 +27,7 @@ class SubroutineBuilder:
 
         # Initialize config and function maps for each routine.
         self.init_subroutine_configs()
-        self.find_files = FileFindRoutine(self.base_config, high_level_task, self.file_contents_config, self.file_creating_config, self.find_files_function_map)
+        self.find_files = FileFindRoutine(self.base_config, high_level_task, self.file_contents_config, self.file_writing_config, self.file_creating_config, self.find_files_function_map)
         self.stub_writing = StubWriteRoutine(self.base_config, self.stub_reading_config, self.stub_writing_config, self.stub_writing_function_map)
         self.code_writing = CodeWriteRoutine(self.base_config, self.code_reading_config, self.code_writing_config, self.code_writing_function_map)
         self.debugging = DebugRoutine(self.base_config, self.debugging_reading_config, self.debugging_config, self.debugging_function_map)
@@ -35,11 +35,10 @@ class SubroutineBuilder:
         self.perform_subroutines()
         
     def append_files_to_task_description(self, high_level_task, file_names):
-        file_list_str = ', '.join(file_names)
-        return f"{high_level_task}. Involved files: {file_list_str}"
+        return f"{high_level_task}. Involved files: {file_names}"
     
         '''
-        # Example usage:
+        # Example usage: 
         high_level_task = "Create a service worker component"
         file_names = ["src/App.js", "src/components/Component.js", "src/utils/helpers.js"]
         updated_task_description = append_files_to_task_description(high_level_task, file_names)
@@ -50,6 +49,8 @@ class SubroutineBuilder:
         # Perform routines for file finding, stub writing, code writing, and debugging.
         # Each of these routines will correspond to a phase in the development process.
         # These will interact with reactManager to perform tasks.
+        
+        
         # self.planner.init_plan(self.user_prompt)
         # self.installer.find_dependencies(self.react_manager.read_file("", "plan.txt"))
         plan_items = self.react_manager.get_plan_items()
@@ -63,11 +64,35 @@ class SubroutineBuilder:
         task_list = plan_items[1]
         full_task = "\n".join(task_list)
         for step in range(1, len(task_list)):
+          
+            # create the relecant_files.txt to keep track of the files that are relevant to the high_level_task
+            success = self.react_manager.create_new_file("", "relevant_files.txt", "")
+            if not success:
+                print("Error creating relevant_files.txt")
+                return
+         
             print("FIND FILES ROUTINE")
-            file_names = self.find_files.find_files(full_task)
-            print("List of relevant files: ", file_names)
+            print("FIND FILES ROUTINE")
+            status = self.find_files.find_files()
+            if not status:
+                print("Error finding files")
+                return
+
+            # read in files names from relevant_files.txt
+            file_names_str = self.react_manager.read_file("", "relevant_files.txt")
+
+            if not file_names_str:
+                print("Error reading relevant_files.txt")
+                return
             
-            updated_task_description = self.append_files_to_task_description(task_list[step], file_names)
+            # make sure that file_names_str is a string with comma separated file names
+            # Check if file_names_str contains multiple file paths
+            if ',' in file_names_str:
+                file_names = file_names_str.split(", ")
+            else:
+                file_names = [file_names_str]  # Wrap the single file path in a list
+
+            updated_task_description = self.append_files_to_task_description(self.high_level_task, file_names_str)
             
             for file in file_names:
                 print("File: ", file)
@@ -88,7 +113,7 @@ class SubroutineBuilder:
         while(numFailed):
             self.debugging.debug(full_task, output)
             numFailed, output = self.react_manager.exec_tests()
-
+            
         print("DONE")
         
     
@@ -98,6 +123,7 @@ class SubroutineBuilder:
         self.find_files_function_map = {
             "read_file": self.react_manager.read_file,
             "create_new_file": self.react_manager.create_new_file,
+            "write_to_file": self.react_manager.write_to_file,
             "list_react_files": self.react_manager.list_react_files,
         }
         
@@ -111,6 +137,14 @@ class SubroutineBuilder:
         
         self.file_creating_config = {
             "functions": file_creating_functions,
+            "request_timeout": 600,
+            "seed": 42,
+            "config_list": self.config_list,
+            "temperature": 0,
+        }
+        
+        self.file_writing_config = {
+            "functions": file_writing_functions,
             "request_timeout": 600,
             "seed": 42,
             "config_list": self.config_list,
@@ -193,11 +227,25 @@ def main():
     # Entry point for the script.
     # Parse arguments and create an instance of SubroutineBuilder.
     # Start the routines for the development process.
-    subroutineBuilder = SubroutineBuilder("", "new-app", "Recreate google maps with just the api.")
-    # subroutineBuilder.perform_subroutines()
+
+    subroutineBuilder = SubroutineBuilder("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", "google-maps-api-app", "Make sure this app is using the Google Maps API to display a map and find routes to locations. provided by the user in the search bar. The map should be centered on the user's current location and provide a route to the location provided in the search bar when the user clicks the search button. My google maps API key is: AIzaSyDRq8DvKx9_E-NpS-C5N3dXDT_A5aBbs-4")
+    subroutineBuilder.perform_subroutines()
+
     
     # ReactAppManager = ReactAppManager("subroutine-app")
     # list_of_files = ReactAppManager.get_react_app_directory()
 
 if __name__ == "__main__":
     main()
+
+
+# FUTURE PLAN: CREATE SELENIUM WEBDRIVER TO READ DOCUMENTATIONS WHILE WEB BROWSING AGENT FINDS RELEVANT WEBSITES
+# 1 agent to read documentation using selenium webdriver
+# 1 agent to find relevant websites using web browsing
+# 1 agent to review the documentation and websites found
+# 1 agent to modify plan based on the documentation and websites found
+
+# This agent can literally go in any of the routines. It can be used to find documentation for the high_level_task.
+# It can be used to install the proper libraries for the high_level_task.
+# It can be used to identify proper file structure for the high_level_task.
+# It can be used to identify proper code structure for the high_level_task for each of the files.

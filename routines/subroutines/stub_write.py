@@ -23,7 +23,7 @@ class StubWriteRoutine:
 
         self.client = UserProxyAgent(
             name="client",
-            max_consecutive_auto_reply=3,
+            max_consecutive_auto_reply=5,
             function_map=stub_writing_function_map,
             human_input_mode="NEVER",
             default_auto_reply=STUB_WRITE_CLIENT_AUTO_REPLY,
@@ -33,7 +33,11 @@ class StubWriteRoutine:
         STUB_READING_AGENT_SYSTEM_MESSAGE = """
             You are responsible for reading and analyzing the content of the file at the provided file path. Your goal is to identify where stubs or 'TODO' comments are needed. 
             Use the 'read_file' function, splitting 'file_path' into the directory and file name. For instance, if 'file_path' is 'src/utils/helper.js', 
-            your read_file call should be with 'src/utils' as the directory and 'helper.js' as the file name. Look for areas that require further development or clarification.         
+            your read_file call should be with 'src/utils' as the directory and 'helper.js' as the file name. Look for areas that require further development or clarification.   
+            
+            Remember as a stub reader, you are not responsible for writing the stubs. But because you know the other relevant files, you can provide guidance on what stubs are needed.
+            To this end, you can consider reading the other files and provide guidance for the stub writer on what the contents of the other relevant files are so the stub writer can
+            accurately write the stubs.       
         """
         
         self.stub_reader = AssistantAgent(
@@ -44,6 +48,8 @@ class StubWriteRoutine:
 
         STUB_WRITE_AGENT_SYSTEM_MESSAGE = """
             Your task is to add stubs and 'TODO' comments to the file at the provided path. These should align with our high-level task. 
+            You only work with the provided file path but you gain insight from the stub_reader about the contents of the other relevant files.
+            Remember when writing stubs that certain js functionalities with comments do not allow you to write inline comments next to the code.
             When using the 'write_to_file' function, remember to split 'file_path' into the directory and file name. 
             Ensure that your stubs are clear and provide a solid foundation for the subsequent coding phase.
         """
@@ -56,7 +62,12 @@ class StubWriteRoutine:
 
         STUB_REVIEW_AGENT_SYSTEM_MESSAGE = """
             As a reviewer, critically evaluate the stubs added to the file at the file path. They should be coherent, relevant to our high-level task, and easy for developers to understand and act upon. 
-            Use the 'read_file' function to access the updated content, splitting 'file_path' as needed. Provide feedback or suggest improvements to ensure high-quality stubs.
+    
+            Use the 'read_file' function to access the updated content, splitting 'file_path' as needed. Provide feedback or suggest improvements to ensure high-quality stubs. Make sure that the written
+            stubs do not conflate and halluciate on the contents of the other relevant files. To this end, you may want to look into the contents of the other files. Provide suggestions to the stub_writer
+            to ensure that the stubs are accurate and relevant to the high-level task.
+            
+            If you think all the files are good to go, reply with 'done'. Tell the other agents to do the same.
         """
 
         self.stub_creator = AssistantAgent(
