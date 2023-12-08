@@ -1,0 +1,51 @@
+/* SignIn.module.css */
+body {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  background-image: linear-gradient(to left, #fd79a8, #a29bfe);
+}
+.a {
+  background-color: #fff;
+  width: 350px;
+  height: 500px;
+  position: relative;
+  display: flex;
+  border-radius: 10px;
+  justify-content: center;
+  align-items: center;
+  top: 100px;
+  }
+.b {
+  width: 300px;
+  height: 450px;
+  overflow: hidden;
+}
+.c {
+  font: 900 40px 'Sans Serif'; /* Updated font family */
+  margin: 60px 0;
+  text-align: center;
+  letter-spacing: 5px;
+}
+.e{
+  width: 100%;
+  margin-bottom: 20px;
+  outline: none;
+  border: 0;
+  padding: 10px;
+  border-bottom: 2px solid rgb(60,60,70);
+  font: 900 16px '';
+}
+.f{
+    text-align: center;
+    height: 24px;
+    padding: 12px;
+    font: 900 20px '';
+    border-radius: 10px;
+    background-image: linear-gradient(to left, #fd79a8, #a29bfe);
+}
+.g{
+    margin: 33px;
+}
+  /* ... Add the rest of the CSS classes and convert them to the CSS Module syntax ... */
+  

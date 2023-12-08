@@ -1,0 +1,61 @@
+
+/* Main Banner */
+.main-banner {
+    position: relative;
+}
+
+.banner-image {
+    width: 100%;
+    height: 800px;
+    object-fit: cover;
+    z-index: 1; /* Positioned below the line and tabs */
+}
+
+.banner-content {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    text-align: center;
+    color: #fff;
+}
+
+.banner-header {
+    font-size: 2.5em;
+    margin-bottom: 10px;
+}
+
+.banner-subheadline {
+    font-size: 1.5em;
+    margin-bottom: 10px;
+}
+
+.banner-paragraph {
+    font-size: 1em;
+    max-width: 600px;
+    margin: 0 auto 20px auto;
+}
+
+.main-banner button {
+    padding: 10px 15px;
+    background-color: #ff4500;
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.main-banner button:hover {
+    background-color: #ff5722;
+}
+.main-banner::after {
+    content: "";
+    display: block;
+    height: 5px; /* Adjust thickness as per requirement */
+    background-color: #ff4500; /* Dark Orange */
+    position: relative;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+}

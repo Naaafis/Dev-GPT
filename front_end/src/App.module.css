@@ -1,0 +1,29 @@
+/* App.module.css - Example of global styles */
+
+/* General Resets and Typography */
+body {
+    margin: 0;
+    padding: 0;
+    font-family: Arial, sans-serif;
+    background-color: #f5f5f5;
+    color: #333;
+    width: 90%;
+}
+
+/* General Link Styles */
+a {
+    color: #d32f2f;
+    text-decoration: none;
+}
+
+a:hover {
+    text-decoration: underline;
+}
+
+/* You can also put general layout styles here, for example: */
+.container {
+    width: 60%;
+    margin: 0 auto;
+}
+
+/* And any other global classes you might want to use across multiple components */
