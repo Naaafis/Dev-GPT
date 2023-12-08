@@ -3,7 +3,7 @@ from reactManager import ReactAppManager
 # import subroutine classes
 from routines.frontend.prompt_enhance import PromptEnhanceRoutine
 from routines.frontend.image_create import ImageCreateRoutine
-#from routines.frontend.chatbot_routie import ChatBotRoutine
+from routines.frontend.chatbot_routine import ChatBotRoutine
 from config.functions import *
 from config.prompts import *
 
@@ -30,7 +30,7 @@ class FrontendBuilder:
         # Initialize config and function maps for each routine.
         self.init_frontend_configs()
         #
-        #self.chatbot_routine = ChatBotRoutine(self.base_config, self.chatbot_read_config, self.chatbot_write_config, self.chatbot_function_map)
+        self.chatbot_routine = ChatBotRoutine(self.base_config, self.chatbot_read_config, self.chatbot_write_config, self.chatbot_writing_function_map)
         self.prompt_enhance = PromptEnhanceRoutine(self.base_config, self.prompt_read_config, self.prompt_write_config, self.prompt_writing_function_map)
         self.image_create = ImageCreateRoutine(self.base_config, self.imgcreate_prompt_write_config, self.imgcreate_read_config, self.imgcreate_write_config, self.img_create_function_map)
         
@@ -53,20 +53,25 @@ class FrontendBuilder:
         
         file_names = file_names_str.split(", ")
         for file in file_names:
-            print("PROMPT ENHANCING ROUTINE")
-            print("File: ", file)
-            #user_input = self.react_manager.read_file(".", "./saves/user_input.txt")
-            #design_status = self.chatbot_routine.user_decision(user_input)
-            #if design_status == "design":
-            prompt = self.react_manager.read_file(".", "./saves/user_prompt.txt")
-            self.prompt_enhance.prompt_enhance(file, prompt)
-            enhanced_prompt = self.react_manager.read_file(".", "./saves/user_prompt.txt")
-            #create_image = self.image_create.image_create(file, enhanced_prompt)
             
-            #if design_status == "design"
-            # design_status = readfile from "user_status.txt"
-            user_feedback = self.react_manager.read_file(".", "./saves/user_feedback.txt")
-            image_improve = self.image_create.image_create(file, enhanced_prompt, user_feedback)
+            print("File: ", file)
+            user_input = self.react_manager.read_file(".", "./saves/user_input.txt")
+            self.chatbot_routine.user_decision(file, user_input)
+            user_status = self.react_manager.read_file(".", "./saves/user_feedback.txt")
+            print(user_status)
+            if user_status == "FALSE\n":
+                print("PROMPT ENHANCING ROUTINE")
+                prompt = self.react_manager.read_file(".", "./saves/user_prompt.txt")
+                self.prompt_enhance.prompt_enhance(file, prompt)
+                enhanced_prompt = self.react_manager.read_file(".", "./saves/user_prompt.txt")
+                self.image_create.image_create(file, enhanced_prompt)
+            elif user_status == "SATISFIED\n":
+                print("USER SATISFIED")
+                print("NAFIS INSERT YOUR WORK HERE")
+            else:
+                print("FEEDBACK REWORK ROUTINE")
+                enhanced_prompt = self.react_manager.read_file(".", "./saves/user_prompt.txt")
+                self.image_create.image_create(file, enhanced_prompt, user_status)
             
             #if design_status == "satisfied"
             #PASS TO NAFIS STUFF
@@ -77,22 +82,22 @@ class FrontendBuilder:
         self.temp_prompt = TEMP_PROMPT_PLACEHOLDER
         # Define the groupchat's configs for finding relevant files based on the high_level_task.
         # This will likely involve interaction with the ReactAppManager to read files and create relevant ones.
-        self.find_files_function_map = {
-            "read_file": self.react_manager.read_file,
+        self.chatbot_writing_function_map = {
+            "read_file": self.react_manager.read_file, #from reactManager.py
             "create_new_file": self.react_manager.create_new_file,
-            "list_react_files": self.react_manager.list_react_files,
+            "write_to_file": self.react_manager.write_to_file,
         }
         
-        self.file_contents_config = {
-            "functions": file_contents_functions,
+        self.chatbot_write_config = {
+            "functions": prompt_writing_functions,
             "timeout": 600,
             "seed": 42,
             "config_list": self.config_list,
             "temperature": 0,
         }
         
-        self.file_creating_config = {
-            "functions": flie_creating_functions,
+        self.chatbot_read_config = {
+            "functions": prompt_reading_functions,
             "timeout": 600,
             "seed": 42,
             "config_list": self.config_list,

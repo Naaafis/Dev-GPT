@@ -43,9 +43,6 @@ const ChatBox = () => {
     if (!message) {
       alert('Please enter your request');
       return;
-    }
-    const newMessage = {
-      content: message,
     };
     // Add the user's text message to the chat
     addMessage(message);

@@ -1,7 +1,7 @@
 # Import flask and datetime module for showing date and time
 from flask import Flask, request, jsonify
 from flask_cors import CORS
-from prompt_manager import *
+#from prompt_manager import *
 from build_frontend import *
 
 # Initializing flask app
@@ -16,11 +16,10 @@ def submit_message():
     message = data['message']
     
     frontendBuilder = FrontendBuilder("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", "front_end", "Convert my web design prompt into an image")
-    #frontendBuilder.react_manager.write_to_file(".", "./saves/user_input.txt", message)
-    frontendBuilder.react_manager.write_to_file(".", "./saves/user_prompt.txt", message)
+    frontendBuilder.react_manager.write_to_file(".", "./saves/user_input.txt", message)
     
     frontendBuilder.perform_frontend()
-
+    print("FINISHED")
     return jsonify({"message": "design.png"})
 	
 # Running app
