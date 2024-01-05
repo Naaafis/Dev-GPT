@@ -1,12 +1,14 @@
 from controller import Controller
 import os
 import subprocess
+import time
 import sys
 import json
 import ast
+import re
 
 class ReactAppManager:
-    def __init__(self, app_name='subroutine-app'):
+    def __init__(self, app_name):
         self.controller = Controller()
         self.react_app_name = app_name
         
@@ -17,31 +19,76 @@ class ReactAppManager:
         '''
         
         self.root_directory = self.controller.print_working_directory()
+        # self.create_react_app()
+        #self.setup_react_directory()
 
     def setup_react_directory(self):
-        """Configures React app directory"""
-        if not self.check_node_version():
-            print("Please install node")
-            return
-
-        if not self.check_react_version():
-            print("Please install npx")
-            return
-
-        """Create a new React app."""
-        cmd = f"npx create-react-app {self.app_name}"
-        output = self.controller.execute_command(cmd)
-
         """Enforced file structure"""
-        src_dir = os.path.join(self.get_react_app_directory, "/src")
-        self.create_directory(self, src_dir, "/assets")
-        self.create_directory(self, src_dir, "/components")
-        self.create_directory(self, src_dir, "/hooks")
-        self.create_directory(self, src_dir, "/context")
-        self.create_directory(self, src_dir, "/data")
-        self.create_directory(self, src_dir, "/pages")
-        self.create_directory(self, src_dir, "/util")
+        src_dir = os.path.join(self.get_react_app_directory(), "/src")
+        self.create_directory(src_dir, "/assets")
+        self.create_directory(src_dir, "/components")
+        self.create_directory(src_dir, "/hooks")
+        self.create_directory(src_dir, "/context")
+        self.create_directory(src_dir, "/data")
+        self.create_directory(src_dir, "/pages")
+        self.create_directory(src_dir, "/util")
 
+    def exec_tests(self):
+        # Run the Jest tests
+        os.chdir(self.get_react_app_directory())
+        try:
+            process = subprocess.Popen("npm test -- --json --watchAll=false", stdout=subprocess.PIPE, stderr=subprocess.PIPE, cwd=self.get_react_app_directory(), shell=True)
+            output, error = process.communicate()
+            match = re.search(r'"numFailedTests":(\d+),', output.strip().decode('utf-8'))
+            num_tests_failed = 0
+            if match:
+                num_tests_failed = int(match.group(1))
+        except subprocess.CalledProcessError as e:
+            return ("An error occurred while running the tests." + str(e))
+        
+        return num_tests_failed, output.strip().decode('utf-8')
+    
+    def lint(self):
+        # Run the eslint
+        os.chdir(self.get_react_app_directory())
+        try:
+            result = subprocess.run("npx eslint src", stdout=subprocess.PIPE, stderr=subprocess.PIPE, cwd=self.get_react_app_directory(), shell=True)
+            match = re.search(r'(\d+) problems', result.stdout.strip().decode('utf-8'))
+            num_tests_failed = 0
+            if match:
+                num_tests_failed = int(match.group(1))
+        except subprocess.CalledProcessError as e:
+            return ("An error occurred while linting.")
+        
+        return num_tests_failed, result.stdout
+
+    # def lint(self, file_paths=None):
+    #     report = []
+    #     # js_file_paths = os.path.join(self.get_react_app_directory(), js_file_paths) 
+    #     if not file_paths:
+
+    #     for file_path in file_paths:
+    #         # Check if the provided JavaScript file exists
+    #         file_path = os.path.join(self.get_react_app_directory(), file_path) 
+    #         if not os.path.exists(file_path):
+    #             print(f"Error: File '{file_path}' does not exist.")
+    #             continue  # Skip to the next file if it doesn't exist
+
+    #         try:
+    #             # Run ESLint on the JavaScript file
+    #             result = subprocess.run(f"npx eslint {file_path}", capture_output=True, text=True, check=True, cwd=self.get_react_app_directory(), shell=True)
+
+    #             # Check if ESLint reported any issues
+    #             if result.returncode == 0:
+    #                 report.append(f"Linting passed for {file_path}: No issues found.")
+    #             else:
+    #                 report.append(result.stdout)
+    #         except subprocess.CalledProcessError as e:
+    #             report.append(f"Linting failed for {file_path} with error: {e}")
+    #         except FileNotFoundError:
+    #             report.append("Error: ESLint not found. Make sure ESLint is installed and in your PATH.")
+    #     return '\n'.join(report)
+    
 
     '''
     The set of functions below is used by the PlanningAgent to get a sense of its surrounding environment.
@@ -184,7 +231,7 @@ class ReactAppManager:
         yarn_version = self.controller.execute_command("yarn -v")['message']
         return {"npm": npm_version, "yarn": yarn_version}
     
-    def check_react_installed(self):
+    def check_react_version(self):
         """Check if React is installed."""
         cmd = "npx -v"
         version = self.controller.execute_command(cmd)['message']
@@ -195,14 +242,10 @@ class ReactAppManager:
         cmd = f"npm install {' '.join(packages)}"
         return self.controller.execute_command(cmd)
     
-    def create_react_app(self, app_name):
+    def create_react_app(self):
         """Create a new React app."""
-        cmd = f"npx create-react-app {app_name}"
-        output = self.controller.execute_command(cmd)
-        if "success" in output['message'].lower():
-            return f"React app {app_name} created successfully!"
-        else:
-            return output
+        cmd = f"npx create-react-app {self.react_app_name}"
+        subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, cwd=os.getcwd(), shell=True)
         
     def npm_start(self):
         """Start the React app using npm and check if it compiles successfully."""
@@ -267,7 +310,7 @@ class ReactAppManager:
         
     def create_directory(self, dir_path, dir_name):
         """Create a directory within the React app directory."""
-        self.controller.create_directory(os.path.join(self.get_react_app_directory(), dir_path, dir_path))
+        self.controller.create_directory(os.path.join(self.get_react_app_directory(), dir_path, dir_name))
     
         
     def read_file(self, file_path, file_name):
@@ -425,84 +468,84 @@ class ReactAppManager:
 #     def edit_app_css(self, content, mode='replace', line_num=None):
 #         return self.edit_file("src/App.css", content, mode, line_num)
     
-def main():
-    manager = ReactAppManager()
-
-    command = sys.argv[1]
-    if command == "check_os":
-        print(manager.check_os())
-    elif command == "check_node_version":
-        print(manager.check_node_version())
-    elif command == "install_node_based_on_os":
-        print(manager.install_node_based_on_os())
-    elif command == "check_for_common_package_installers":
-        print(manager.check_for_common_package_installers())
-    elif command == "install_npm_packages":
-        packages = sys.argv[2:]
-        print(manager.install_npm_packages(packages))
-    elif command == "create_react_app":
-        print(manager.create_react_app(sys.argv[2]))
-    elif command == "edit_package_json":
-        content = sys.argv[2]
-        print(manager.edit_package_json(content))
-    elif command == "edit_gitignore":
-        content = sys.argv[2]
-        print(manager.edit_gitignore(content))
-    elif command == "edit_README":
-        content = sys.argv[2]
-        print(manager.edit_README(content))
-    elif command == "edit_index_html":
-        content = sys.argv[2]
-        print(manager.edit_index_html(content))
-    elif command == "edit_manifest_json":
-        content = sys.argv[2]
-        print(manager.edit_manifest_json(content))
-    elif command == "edit_index_js":
-        content = sys.argv[2]
-        print(manager.edit_index_js(content))
-    elif command == "edit_app_js":
-        content = sys.argv[2]
-        print(manager.edit_app_js(content))
-    elif command == "edit_app_css":
-        content = sys.argv[2]
-        print(manager.edit_app_css(content))
-    elif command == "create_new_file":
-        filename = sys.argv[2]
-        content = sys.argv[3] if len(sys.argv) > 3 else ""
-        directory = sys.argv[4] if len(sys.argv) > 4 else None
-        print(manager.create_new_file( directory, filename, content))
-    elif command == "write_to_file":
-        filename = sys.argv[2]
-        content = sys.argv[3] if len(sys.argv) > 3 else ""
-        directory = sys.argv[4] if len(sys.argv) > 4 else ""
-        print(manager.write_to_file(directory, filename, content))
-    elif command == "insert_into_file":
-        filename = sys.argv[2]
-        content = sys.argv[3] if len(sys.argv) > 3 else ""
-        line_num = sys.argv[4] if len(sys.argv) > 4 else 0
-        directory = sys.argv[5] if len(sys.argv) > 5 else ""
-        print("directory: ", directory, "filename: ", filename, "content: ", content, "line_num: ", line_num)
-        print(manager.insert_into_file(directory, filename, content, line_num))
-    elif command == "delete_lines":
-        filename = sys.argv[2]
-        line_nums = sys.argv[3] if len(sys.argv) > 3 else ""
-        directory = sys.argv[4] if len(sys.argv) > 4 else ""
-        print(manager.delete_lines(directory, filename, line_nums))
-    elif command == "npm_start":
-        print(manager.npm_start())
-    elif command == "stop_react_app":
-        manager.stop_react_app()
-    elif command == "list_react_files":
-        directory = sys.argv[2] if len(sys.argv) > 2 else None
-        print(manager.list_react_files(directory))
-    elif command == "read_file":
-        filename = sys.argv[2]
-        directory = sys.argv[3] if len(sys.argv) > 3 else ""
-        print(manager.read_file(directory, filename))
-
 # def main():
 #     manager = ReactAppManager()
-#     print(manager.get_plan_items())
+
+#     command = sys.argv[1]
+#     if command == "check_os":
+#         print(manager.check_os())
+#     elif command == "check_node_version":
+#         print(manager.check_node_version())
+#     elif command == "install_node_based_on_os":
+#         print(manager.install_node_based_on_os())
+#     elif command == "check_for_common_package_installers":
+#         print(manager.check_for_common_package_installers())
+#     elif command == "install_npm_packages":
+#         packages = sys.argv[2:]
+#         print(manager.install_npm_packages(packages))
+#     elif command == "create_react_app":
+#         print(manager.create_react_app(sys.argv[2]))
+#     elif command == "edit_package_json":
+#         content = sys.argv[2]
+#         print(manager.edit_package_json(content))
+#     elif command == "edit_gitignore":
+#         content = sys.argv[2]
+#         print(manager.edit_gitignore(content))
+#     elif command == "edit_README":
+#         content = sys.argv[2]
+#         print(manager.edit_README(content))
+#     elif command == "edit_index_html":
+#         content = sys.argv[2]
+#         print(manager.edit_index_html(content))
+#     elif command == "edit_manifest_json":
+#         content = sys.argv[2]
+#         print(manager.edit_manifest_json(content))
+#     elif command == "edit_index_js":
+#         content = sys.argv[2]
+#         print(manager.edit_index_js(content))
+#     elif command == "edit_app_js":
+#         content = sys.argv[2]
+#         print(manager.edit_app_js(content))
+#     elif command == "edit_app_css":
+#         content = sys.argv[2]
+#         print(manager.edit_app_css(content))
+#     elif command == "create_new_file":
+#         filename = sys.argv[2]
+#         content = sys.argv[3] if len(sys.argv) > 3 else ""
+#         directory = sys.argv[4] if len(sys.argv) > 4 else None
+#         print(manager.create_new_file( directory, filename, content))
+#     elif command == "write_to_file":
+#         filename = sys.argv[2]
+#         content = sys.argv[3] if len(sys.argv) > 3 else ""
+#         directory = sys.argv[4] if len(sys.argv) > 4 else ""
+#         print(manager.write_to_file(directory, filename, content))
+#     elif command == "insert_into_file":
+#         filename = sys.argv[2]
+#         content = sys.argv[3] if len(sys.argv) > 3 else ""
+#         line_num = sys.argv[4] if len(sys.argv) > 4 else 0
+#         directory = sys.argv[5] if len(sys.argv) > 5 else ""
+#         print("directory: ", directory, "filename: ", filename, "content: ", content, "line_num: ", line_num)
+#         print(manager.insert_into_file(directory, filename, content, line_num))
+#     elif command == "delete_lines":
+#         filename = sys.argv[2]
+#         line_nums = sys.argv[3] if len(sys.argv) > 3 else ""
+#         directory = sys.argv[4] if len(sys.argv) > 4 else ""
+#         print(manager.delete_lines(directory, filename, line_nums))
+#     elif command == "npm_start":
+#         print(manager.npm_start())
+#     elif command == "stop_react_app":
+#         manager.stop_react_app()
+#     elif command == "list_react_files":
+#         directory = sys.argv[2] if len(sys.argv) > 2 else None
+#         print(manager.list_react_files(directory))
+#     elif command == "read_file":
+#         filename = sys.argv[2]
+#         directory = sys.argv[3] if len(sys.argv) > 3 else ""
+#         print(manager.read_file(directory, filename))
+
+def main():
+    manager = ReactAppManager(app_name='new-app')
+    print(manager.exec_tests())
 
 if __name__ == "__main__":
     main()

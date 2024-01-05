@@ -11,9 +11,9 @@ class Builder:
     def __init__(self, api_key, app_name, user_prompt):
         self.app_name = app_name
         self.user_prompt = user_prompt
-        self.config_list = [ { 'model': 'gpt-4', 'api_key': api_key } ]
+        self.config_list = [ { 'model': 'gpt-4-1106-preview', 'api_key': api_key } ]
         self.base_config = {
-            "request_timeout": 600,
+            "timeout": 600,
             "seed": 42,
             "config_list": self.config_list,
             "temperature": 0,
@@ -35,7 +35,7 @@ class Builder:
 
         print("CODE ROUTINE")
         #for t in range(len(plan_items)):
-        step = plan_items[2]
+        step = plan_items[4]
         step_str = "\n".join(step)
         for sub in range(1, len(step)):
             self.coder.init_code(step[sub], step_str)
@@ -55,7 +55,7 @@ class Builder:
 
         self.plan_config = {
             "functions": plan_functions,
-            "request_timeout": 600,
+            "timeout": 600,
             "seed": 42,
             "config_list": self.config_list,
             "temperature": 0,
@@ -72,7 +72,7 @@ class Builder:
 
         self.code_config = {
             "functions": code_functions,
-            "request_timeout": 600,
+            "timeout": 600,
             "seed": 42,
             "config_list": self.config_list,
             "temperature": 0,
@@ -80,7 +80,7 @@ class Builder:
 
         self.sme_config = {
             "functions": sme_functions,
-            "request_timeout": 600,
+            "timeout": 600,
             "seed": 42,
             "config_list": self.config_list,
             "temperature": 0,
@@ -92,7 +92,7 @@ class Builder:
 
         self.install_config = {
             "functions": install_functions,
-            "request_timeout": 600,
+            "timeout": 600,
             "seed": 42,
             "config_list": self.config_list,
             "temperature": 0,
@@ -100,7 +100,7 @@ class Builder:
 
 
 def main():
-    builder = Builder("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", "my_app", "Recreate google maps with just the api.")
+    builder = Builder("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", "my_app", "Recreate google maps with just the api.")
     builder.build()
 
 if __name__ == "__main__":

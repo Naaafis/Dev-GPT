@@ -323,7 +323,8 @@ file_contents_functions = [
             "properties": {
                 "file_path": {
                     "type": "string",
-                    "description": "Path of the file within the React app directory to be read.",
+                    "description": "Path of the file within the React app directory to be read." +
+                    "Leave as empty string if the file is in the root of the React app directory.",
                 },
                 "file_name": {
                     "type": "string",
@@ -349,16 +350,44 @@ file_contents_functions = [
     }
 ]
 
-flie_creating_functions = [
+
+file_writing_functions = [
     {
-        "name": "create_new_file",
-        "description": "Create a new file within the React app if no relevant file is found. This is used when adding new features or components.",
+        "name": "write_to_file",
+        "description": "Write to a file in the React app directory. This is used to write relevant files into the file.",
         "parameters": {
             "type": "object",
             "properties": {
                 "file_path": {
                     "type": "string",
-                    "description": "Path within the React app directory where the new file will be created.",
+                    "description": "Leave as empty string, as the file should be created in the root of the React app directory.",
+                },
+                "file_name": {
+                    "type": "string",
+                    "description": "Name of the file where new code will be written. This should be relevant_files.txt",
+                },
+                "content": {
+                    "type": "string",
+                    "description": "This should be a comma separated string of all the relevant files. There should be no spaces between the commas.",
+                }
+            },
+            "required": ["file_path", "file_name", "content"]
+        },
+    }
+]
+
+file_creating_functions = [
+
+    {
+        "name": "create_new_file",
+        "description": "Create a new file within the React app if no relevant file is found. This is used when adding new features or components. Could also be used to create txt files",
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "file_path": {
+                    "type": "string",
+                    "description": "Path within the React app directory where the new file will be created." +
+                    "Leave as empty string if the file should be created in the root of the React app directory.",
                 },
                 "file_name": {
                     "type": "string",
@@ -366,7 +395,7 @@ flie_creating_functions = [
                 },
                 "content": {
                     "type": "string",
-                    "description": "Initial content to be written into the new file.",
+                    "description": "Initial content to be written into the new file. Each line should end with a new line character (\\n) and the content should be indented and spaced correctly." ,
                 }
             },
             "required": ["file_path", "file_name", "content"]
@@ -397,7 +426,8 @@ stub_reading_functions = [
             "properties": {
                 "file_path": {
                     "type": "string",
-                    "description": "The path of the file within the React app directory.",
+                    "description": "The path of the file within the React app directory." + 
+                    "Leave as empty string if the file is in the root of the React app directory.",
                 },
                 "file_name": {
                     "type": "string",
@@ -418,7 +448,8 @@ stub_writing_functions = [
             "properties": {
                 "file_path": {
                     "type": "string",
-                    "description": "The path of the file within the React app directory.",
+                    "description": "The path of the file within the React app directory." +
+                    "Leave as empty string if the file should be created in the root of the React app directory.",
                 },
                 "file_name": {
                     "type": "string",
@@ -426,7 +457,7 @@ stub_writing_functions = [
                 },
                 "content": {
                     "type": "string",
-                    "description": "The content, including the stubs, to be written into the file.",
+                    "description": "The content, including the stubs, to be written into the file. Each line should end with a new line character (\\n) and the content should be indented and spaced correctly.",
                 }
             },
             "required": ["file_path", "file_name", "content"]
@@ -443,7 +474,8 @@ code_reading_functions = [
             "properties": {
                 "file_path": {
                     "type": "string",
-                    "description": "Path of the file within the React app directory to be read.",
+                    "description": "Path of the file within the React app directory to be read." + 
+                    "Leave as empty string if the file is in the root of the React app directory.",
                 },
                 "file_name": {
                     "type": "string",
@@ -464,7 +496,8 @@ code_writing_functions = [
             "properties": {
                 "file_path": {
                     "type": "string",
-                    "description": "Path of the file within the React app directory where new code will be written.",
+                    "description": "Path of the file within the React app directory where new code will be written." + 
+                    "Leave as empty string if the file should be created in the root of the React app directory.",
                 },
                 "file_name": {
                     "type": "string",
@@ -472,7 +505,7 @@ code_writing_functions = [
                 },
                 "content": {
                     "type": "string",
-                    "description": "New code content to be written into the file.",
+                    "description": "New code content to be written into the file. Each line should end with a new line character (\\n) and the content should be indented and spaced correctly.",
                 }
             },
             "required": ["file_path", "file_name", "content"]
@@ -489,7 +522,8 @@ debug_reading_functions = [
             "properties": {
                 "file_path": {
                     "type": "string",
-                    "description": "Path of the file within the React app directory to be reviewed.",
+                    "description": "Path of the file within the React app directory to be reviewed." + 
+                    "Leave as empty string if the file is in the root of the React app directory.",
                 },
                 "file_name": {
                     "type": "string",
@@ -511,7 +545,8 @@ debugging_functions = [
             "properties": {
                 "file_path": {
                     "type": "string",
-                    "description": "Path of the file within the React app directory where new code will be written.",
+                    "description": "Path of the file within the React app directory where new code will be written." +
+                    "Leave as empty string if the file should be created in the root of the React app directory.",
                 },
                 "file_name": {
                     "type": "string",
@@ -519,7 +554,7 @@ debugging_functions = [
                 },
                 "content": {
                     "type": "string",
-                    "description": "New code content to be written into the file.",
+                    "description": "New code content to be written into the file. Each line should end with a new line character (\\n) and the content should be indented and spaced correctly.",
                 }
             },
             "required": ["file_path", "file_name", "content"]

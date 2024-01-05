@@ -13,12 +13,12 @@ class PlanRoutine:
 
         self.client = UserProxyAgent(
             name="client",
-            max_consecutive_auto_reply=2,
+            max_consecutive_auto_reply=5,
             is_termination_msg=termination_msg,
             function_map=plan_function_map,
             human_input_mode="NEVER",
             default_auto_reply=PLAN_CLIENT_AUTO_REPLY,
-            code_execution_config={"work_dir": "API-Galore"},
+            system_message=PLAN_CLIENT_SYSTEM_MESSAGE
         )
 
         self.executor = AssistantAgent(
