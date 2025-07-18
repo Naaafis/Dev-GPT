@@ -7,20 +7,20 @@ LLM Driven website creation. We aim to use guided prompts and API driven cloud i
 Observed issues installing and using autogen locally. It's suggested to use conda virtual env setup (or pip venv):
 
 ```bash
-conda create -n pyautogen python=3.10  # python 3.10 is recommended as it's stable and not too old
-conda activate pyautogen
+conda create -n ag2 python=3.10  # python 3.10 is recommended as it's stable and not too old
+conda activate ag2
 ```
 
 AutoGen requires **Python version >= 3.8**. It can be installed from pip:
 
 ```bash
-pip install pyautogen
+pip install ag2
 ```
 
 The SME are RetrieveAssitantAgents which need to be installed seperately
 
 ```bash
-pip install "pyautogen[retrievechat]"
+pip install "ag2[retrievechat]"
 ```
 
 =======
